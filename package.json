@@ -1,0 +1,23 @@
+{
+  "name": "back",
+  "version": "1.0.0",
+  "description": "backend for sup hours",
+  "homepage": "https://github.com/ONECSPROJECT/WEBIFY_BACK#readme",
+  "bugs": {
+    "url": "https://github.com/ONECSPROJECT/WEBIFY_BACK/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ONECSPROJECT/WEBIFY_BACK.git"
+  },
+  "license": "ISC",
+  "author": "hxuu",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
