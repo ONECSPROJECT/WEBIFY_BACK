@@ -22,6 +22,10 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/user', userRoutes);
 
+// Root
+app.get('/', (req, res) => {
+    res.send('Hello, World!');
+})
 
 app.all('*', (req, res) => {
     res.status(404).json({ status: 'fail', message: `Can't find ${req.originalUrl} on this server!` });

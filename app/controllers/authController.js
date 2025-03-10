@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const db = require('../../../config/db'); 
+const db = require('../config/db');
 const jwt = require('jsonwebtoken');
 const util = require('util');
 
@@ -61,7 +61,7 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  
+
   try {
     const [accounts] = await db.query(
       'SELECT * FROM Account WHERE email = ?',
@@ -71,7 +71,7 @@ exports.login = async (req, res) => {
     if (accounts.length === 0) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
-    
+
     const account = accounts[0];
 
     const isMatch = await bcrypt.compare(password, account.password_hash);
@@ -90,7 +90,7 @@ exports.login = async (req, res) => {
 exports.protect = async (req, res, next) => {
   try {
     let token;
-    
+
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies.jwt) {
@@ -136,7 +136,7 @@ exports.updatePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   try {
-    const { user_id } = req.user; 
+    const { user_id } = req.user;
 
     const [users] = await db.query(
       'SELECT * FROM Account WHERE user_id = ?',

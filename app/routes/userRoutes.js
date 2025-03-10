@@ -1,5 +1,5 @@
 const express = require('express');
-const authController = require('../WEBIFY_BACK/app/controllers/authController');
+const authController = require('../controllers/authController');
 
 const router = express.Router();
 
