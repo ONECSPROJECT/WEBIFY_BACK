@@ -29,8 +29,8 @@ back/
 ### 🔧 Setup Instructions
 1. Clone the repository:
    ```sh
-   git clone <repo_url>
-   cd back
+   git clone https://github.com/ONECSPROJECT/WEBIFY_BACK
+   cd WEBIFY_BACK
    ```
 
 2. Build and start the services:
@@ -47,107 +47,23 @@ back/
    - `app`: Node.js application (Express)
    - `db`: MariaDB database
 
-4. Check application logs:
-   ```sh
-   docker-compose logs -f app
-   ```
-
 ---
 
-## 🔄 Working as a Team
+## 🔄 Working as a Team (meant for backend devs)
 
-### **Developer 1 (Backend Development)**
-- Modify **`index.js`** or add new routes
-- Install dependencies inside the container:
-  ```sh
-  docker-compose exec app npm install <package>
-  ```
-- Restart the app if needed:
-  ```sh
-  docker-compose restart app
-  ```
+> [!TIP]
+> We'll we using [`nodemon`](https://github.com/remy/nodemon) to enable hot-reload for development
 
-### **Developer 2 (Database Management)**
-- Modify **`init.sql`** for schema updates
-- Access the database shell:
-  ```sh
-  docker-compose exec db mysql -u root -p
-  ```
-- Run custom SQL commands:
-  ```sql
-  USE suphours;
-  SELECT * FROM users;
-  ```
-- Apply changes and restart the database:
-  ```sh
-  docker-compose restart db
-  ```
+To start the application. Use **nodemon** instead of **node**
 
----
-
-## 🛠️ Managing Dependencies
-- To install a new package:
-  ```sh
-  docker-compose exec app npm install <package> --save
-  ```
-- To update dependencies:
-  ```sh
-  docker-compose exec app npm update
-  ```
-- If facing issues with `node_modules`, force rebuild:
-  ```sh
-  docker-compose down -v
-  docker-compose build --no-cache
-  docker-compose up -d
-  ```
-
----
-
-## 🛢️ Database Usage
-- Default credentials (stored in `docker-compose.yml`):
-  ```env
-  DATABASE_HOST=db
-  DATABASE_USER=root
-  DATABASE_PASSWORD=rootpassword
-  DATABASE_NAME=suphours
-  ```
-- Initial schema is set by `init.sql`
-- To persist data, volumes are used (`mariadb_data`)
-
----
-
-## 📌 Common Issues & Fixes
-### Express module not found (`MODULE_NOT_FOUND`)
-1. Ensure dependencies are installed inside the container:
-   ```sh
-   docker-compose exec app npm install
-   ```
-2. Bind-mount `node_modules` to prevent overwriting:
-   Modify `docker-compose.yml`:
-   ```yaml
-   volumes:
-     - ./app:/usr/src/app
-     - /usr/src/app/node_modules
-   ```
-3. Rebuild everything:
-   ```sh
-   docker-compose down -v
-   docker-compose up -d --build
-   ```
-
-### Database not starting
-1. Check logs:
-   ```sh
-   docker-compose logs -f db
-   ```
-2. Ensure `init.sql` does not have syntax errors.
+```sh
+npm install -g nodemon
+# within the app/ dir
+nodemon index.js
+```
 
 ---
 
 ## 🎯 Next Steps
 - Define API endpoints []
 - Implement authentication []
-
-🚀 **Happy Coding!**
-
-
