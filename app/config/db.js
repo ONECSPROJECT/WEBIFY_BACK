@@ -1,21 +1,22 @@
 const mariadb = require('mariadb');
 
-async function asyncFunction() {
-    // I know that this isn't secure and that I should use env variables instead, but whatever
-    const conn = await mariadb.createConnection({
-        host: 'db',
-        user: 'root',
-        password: 'rootpassword',
-        database: 'suphours'
-    });
+const pool = mariadb.createPool({
+    host: 'db',
+    user: 'root',
+    password: 'rootpassword',
+    database: 'suphours'
+});
 
+async function testConnection() {
+    let conn;
     try {
-        const res = await conn.query('SELECT NOW()');
-        console.log(res); // [ { 'NOW()': 2018-07-02T17:06:38.000Z } ]
-        return res;
-    } finally {
-        conn.end();
+        conn = await pool.getConnection();
+        console.log('connected ! connection id is ' + conn.threadId);
+        conn.release(); //release to pool
+    } catch (err) {
+        console.log('not connected due to error: ' + err);
     }
 }
 
-asyncFunction();
+testConnection();
+module.exports = pool;
