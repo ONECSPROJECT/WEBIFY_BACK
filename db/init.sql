@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS suphours;
 USE suphours;
 
 CREATE TABLE User (
-    user_id INT PRIMARY KEY,
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name CHAR(255) NOT NULL,
     last_name CHAR(255) NOT NULL,
     state CHAR(50),
@@ -11,7 +11,7 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Account (
-    account_id INT PRIMARY KEY,
+    account_id INT PRIMARY KEY AUTO_INCREMENT,
     email CHAR(255) UNIQUE NOT NULL,
     salt CHAR(255) NOT NULL,
     password_hash CHAR(255) NOT NULL,
@@ -21,14 +21,14 @@ CREATE TABLE Account (
 );
 
 CREATE TABLE SessionType (
-    session_type_id INT PRIMARY KEY,
+    session_type_id INT PRIMARY KEY AUTO_INCREMENT,
     name CHAR(255) NOT NULL,
     conversion_factor INT NOT NULL,
     hierarchy_level INT NOT NULL
 );
 
 CREATE TABLE Schedule (
-    session_id INT PRIMARY KEY,
+    session_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     day_of_week INT NOT NULL,
     start_time INT NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE Schedule (
 );
 
 CREATE TABLE ProfRank (
-    rank_id INT PRIMARY KEY,
+    rank_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     name CHAR(255) NOT NULL,
     pay_rate_course INT NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE ProfRank (
 );
 
 CREATE TABLE Period (
-    period_id INT PRIMARY KEY,
+    period_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     start_date INT NOT NULL,
     end_date INT NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE Period (
 );
 
 CREATE TABLE Payment (
-    payment_id INT PRIMARY KEY,
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     from_date INT NOT NULL,
     to_date INT NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE Payment (
 );
 
 CREATE TABLE AbsenceRecord (
-    record_id INT PRIMARY KEY,
+    record_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     period_id INT,
     date INT NOT NULL,
