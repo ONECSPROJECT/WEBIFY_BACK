@@ -2,7 +2,9 @@ services:
   app:
     build: ./app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     environment:
       - DATABASE_HOST=db
       - DATABASE_USER=root
