@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS suphours;
+USE suphours;
+
 CREATE TABLE User (
     user_id INT PRIMARY KEY,
     first_name CHAR(255) NOT NULL,
