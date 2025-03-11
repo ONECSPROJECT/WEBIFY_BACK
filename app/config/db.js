@@ -1,19 +1,21 @@
-const mysql = require('mysql');
+const mariadb = require('mariadb');
 
-const connection = mysql.createConnection({
-  host: process.env.DATABASE_HOST || 'db',
-  user: process.env.DATABASE_USER || 'root',
-  password: process.env.DATABASE_PASSWORD || 'rootpassword',
-  database: process.env.DATABASE_NAME || 'suphours'
-});
+async function asyncFunction() {
+    // I know that this isn't secure and that I should use env variables instead, but whatever
+    const conn = await mariadb.createConnection({
+        host: 'db',
+        user: 'root',
+        password: 'rootpassword',
+        database: 'suphours'
+    });
 
-connection.connect(err => {
-  if (err) {
-    console.error('Database connection failed:', err);
-    process.exit(1);
-  }
-  console.log('Connected to the database.');
-});
+    try {
+        const res = await conn.query('SELECT NOW()');
+        console.log(res); // [ { 'NOW()': 2018-07-02T17:06:38.000Z } ]
+        return res;
+    } finally {
+        conn.end();
+    }
+}
 
-module.exports = connection;
-
+asyncFunction();

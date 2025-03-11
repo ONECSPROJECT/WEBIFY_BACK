@@ -39,7 +39,7 @@ CREATE TABLE Schedule (
     FOREIGN KEY (session_type) REFERENCES SessionType(session_type_id) ON DELETE SET NULL
 );
 
-CREATE TABLE Rank (
+CREATE TABLE ProfRank (
     rank_id INT PRIMARY KEY,
     professor_id INT,
     name CHAR(255) NOT NULL,
@@ -53,9 +53,9 @@ CREATE TABLE Period (
     professor_id INT,
     start_date INT NOT NULL,
     end_date INT NOT NULL,
-    rank INT,
+    rank_id INT,
     FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (rank) REFERENCES Rank(rank_id) ON DELETE SET NULL
+    FOREIGN KEY (rank_id) REFERENCES ProfRank(rank_id)
 );
 
 CREATE TABLE Payment (
