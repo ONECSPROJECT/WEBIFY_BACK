@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
 const util = require('util');
+require('dotenv').config();
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 const signToken = (id, role) => {
     return jwt.sign({ id, role }, process.env.JWT_SECRET, {
@@ -17,7 +19,7 @@ const createSendToken = (user, statusCode, req, res) => {
             Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
         ),
         httpOnly: true,
-        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+        secure: req.secure || req.headers['x-forwarded-proto'] === 'http',
         sameSite: 'lax'
     });
 
@@ -61,33 +63,48 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
+    console.log("Login request received:", req.body);
 
     let conn;
     try {
         conn = await db.getConnection();
+        console.log("Database connection established.");
+
         const accounts = await conn.query(
             'SELECT * FROM Account WHERE email = ?',
             [email]
         );
 
+        console.log("Accounts found:", accounts); // Log the retrieved accounts
+
         if (accounts.length === 0) {
-            return res.status(400).json({ error: 'Invalid email or password' });
+            console.log("No account found for this email."); // Debugging log
+            return res.status(400).json({ error: 'Invalid email or password type 1' });
         }
 
         const account = accounts[0];
+        console.log("Stored hash:", account.password_hash);
+        console.log("Entered password:", password);
+
         const isMatch = await bcrypt.compare(password, account.password_hash);
+        console.log("Password match result:", isMatch);
+
         if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid email or password' });
+            console.log("Password does not match.");
+            return res.status(400).json({ error: 'Invalid email or password type 2' });
         }
 
+        console.log("Login successful! Creating token...");
         createSendToken(account, 200, req, res);
     } catch (error) {
-        console.error(error);
+        console.error("Error during login:", error);
         res.status(500).json({ error: 'Server error' });
     } finally {
         if (conn) conn.release();
     }
 };
+
+
 
 exports.protect = async (req, res, next) => {
     try {

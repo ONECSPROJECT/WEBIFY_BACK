@@ -10,6 +10,7 @@ CREATE TABLE User (
     faculty CHAR(255)
 );
 
+
 CREATE TABLE Account (
     account_id INT PRIMARY KEY AUTO_INCREMENT,
     email CHAR(255) UNIQUE NOT NULL,
@@ -19,6 +20,20 @@ CREATE TABLE Account (
     user_id INT UNIQUE,
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
+INSERT INTO User (first_name, last_name, state, payment_information, faculty)
+VALUES ('John', 'Doe', 'Active', 'Paid', 'Computer Science');
+
+SET @user_id = LAST_INSERT_ID();
+
+INSERT INTO Account (email, salt, password_hash, role, user_id)
+VALUES (
+    'admin@example.com',
+    'random_salt_value',
+    '$2b$10$Ez3.Qd3ZVasVO7tUbhVS1uUs4e/d/8hRq2YfNWyHwDi0W5MRpNbjO',
+    'admin',
+    @user_id
+);
+
 
 CREATE TABLE SessionType (
     session_type_id INT PRIMARY KEY AUTO_INCREMENT,
