@@ -80,3 +80,14 @@ CREATE TABLE AbsenceRecord (
     FOREIGN KEY (period_id) REFERENCES Period(period_id) ON DELETE CASCADE
 );
 
+
+-- below is added for password reset functionality. Should figure out a way to easily migrate
+CREATE TABLE PasswordReset (
+    reset_id INT PRIMARY KEY AUTO_INCREMENT,
+    account_id INT NOT NULL,
+    token CHAR(255) UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (account_id) REFERENCES Account(user_id) ON DELETE CASCADE
+);
+
