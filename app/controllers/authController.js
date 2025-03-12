@@ -7,7 +7,7 @@ console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 const signToken = (id, role) => {
     return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-        expiresIn: Number(process.env.JWT_EXPIRES_IN) || '7d' // this isn't valid as of now...
+        expiresIn: Number(process.env.JWT_EXPIRES_IN) || '7d'
     });
 };
 

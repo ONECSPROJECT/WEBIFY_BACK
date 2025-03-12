@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const path = require('node:path');
 const userRoutes = require('./routes/userRoutes');
 
 require('dotenv').config({ path: './.env' });
@@ -13,6 +14,12 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+// SwaggerUI
+if (process.env.NODE_ENV !== 'prod') {
+    app.use('/api-docs/swagger.json', express.static(path.join(__dirname, 'config/swagger.json')));
+    app.use('/api-docs', express.static(path.join(__dirname, 'dist')));
+}
+
 app.use((req, res, next) => {
     console.log(`➡️ Incoming ${req.method} request to: ${req.url}`);
     console.log('🔹 Request Body:', req.body);
@@ -24,7 +31,7 @@ app.use('/api/user', userRoutes);
 
 // Root
 app.get('/', (req, res) => {
-    res.send('Hello, World! 123');
+    res.send('Hello, World!');
 })
 
 app.all('*', (req, res) => {
