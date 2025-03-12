@@ -90,4 +90,3 @@ CREATE TABLE PasswordReset (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (account_id) REFERENCES Account(user_id) ON DELETE CASCADE
 );
-

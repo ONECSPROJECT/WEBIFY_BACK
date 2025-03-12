@@ -24,7 +24,7 @@ app.use('/api/user', userRoutes);
 
 // Root
 app.get('/', (req, res) => {
-    res.send('Hello, World! 123');
+    res.send('Hello, World!');
 })
 
 app.all('*', (req, res) => {

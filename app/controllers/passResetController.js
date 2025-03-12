@@ -5,7 +5,7 @@ const PasswordReset = require('../models/PasswordReset');
 const Account = require('../models/Account');
 
 
-exports.requestPasswordReset = async (req, res) {
+exports.requestPasswordReset = async (req, res) => {
     const { email } = req.body;
     assert.match(email, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid email format");
 
@@ -44,7 +44,7 @@ exports.requestPasswordReset = async (req, res) {
 }
 
 
-exports.resetPassword = async (req, res) {
+exports.resetPassword = async (req, res) => {
     const { token, newPassword } = req.body;
 
     try {
