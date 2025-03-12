@@ -25,7 +25,7 @@
 
     "paths": {
 
-        "/register": {
+        "/user/register": {
             "post": {
                 "tags": ["auth"],
                 "summary": "User Registration",
@@ -47,7 +47,7 @@
                 }
             }
         },
-        "/login": {
+        "/user/login": {
             "post": {
                 "tags": ["auth"],
                 "summary": "User Login",
@@ -70,7 +70,7 @@
             }
         },
 
-        "/request-reset-password": {
+        "/user/request-reset-password": {
             "post": {
                 "tags": ["auth"],
                 "summary": "Request a password reset link",
@@ -98,7 +98,7 @@
                 }
             }
         },
-        "/reset-password": {
+        "/user/reset-password": {
             "post": {
                 "tags": ["auth"],
                 "summary": "Reset user password",
@@ -124,7 +124,7 @@
             }
         },
 
-        "/auth": {
+        "/user/auth": {
             "get": {
                 "tags": ["user"],
                 "summary": "Validate JWT Token",

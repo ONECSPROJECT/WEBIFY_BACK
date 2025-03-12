@@ -64,6 +64,7 @@ nodemon index.js
 
 ---
 
-## 🎯 Next Steps
-- Define API endpoints []
-- Implement authentication []
+## SwaggerUI 2.0
+
+- Interactive docs found at `/api-docs`
+- Read more about SwaggerUI [here](https://swagger.io/tools/swagger-ui/)
