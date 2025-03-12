@@ -6,7 +6,7 @@ services:
         condition: service_healthy
         restart: true
     environment:
-      - DATABASE_HOST=db
+      - DATABASE_HOST=172.18.0.2
       - DATABASE_USER=root
       - DATABASE_PASSWORD=rootpassword
       - DATABASE_NAME=suphours
@@ -14,7 +14,7 @@ services:
       - JWT_EXPIRES_IN=604800  # 7 days in seconds
       - JWT_COOKIE_EXPIRES_IN=7 # 7 days
     ports:
-      - "3000:3000"
+      - "8000:8000"
     volumes:
       - ./app:/usr/src/app
       - /usr/src/app/node_modules # avoids re-downloading node_modules every time
