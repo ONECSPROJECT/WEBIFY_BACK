@@ -1,0 +1,306 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "
+        Backend SwaggerUI for sup hours 1CS project. You can test every API endpoint interactively here.\n
+        ",
+        "version": "0.0.1-alpha",
+        "title": "Webify API",
+    },
+    "host": "localhost:3000",
+    "basePath": "/api",
+    "tags": [
+        {
+            "name": "auth",
+            "description": "Authentication related operations",
+        },
+        {
+            "name": "user",
+            "description": "Operations about user",
+        }
+    ],
+    "schemes": [
+        "http"
+    ],
+
+    "paths": {
+
+        "/user/register": {
+            "post": {
+                "tags": ["auth"],
+                "summary": "User Registration",
+                "description": "Registers a new user and stores their account information.",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": { "$ref": "#/definitions/User.RegisterRequest" }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "schema": { "$ref": "#/definitions/User.RegisterResponse" }
+                    },
+                    "400": {},
+                    "500": {}
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "tags": ["auth"],
+                "summary": "User Login",
+                "description": "Authenticates a user and returns a JWT token for session management.",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": { "$ref": "#/definitions/User.LoginRequest" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "schema": { "$ref": "#/definitions/User.AuthResponse" }
+                    },
+                    "400": {},
+                    "500": {}
+                }
+            }
+        },
+
+        "/user/request-reset-password": {
+            "post": {
+                "tags": ["auth"],
+                "summary": "Request a password reset link",
+                "description": "Sends a password reset link to the user's email.",
+                "operationId": "requestPasswordReset",
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Account.PasswordResetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password reset link sent successfully",
+                        "schema": {
+                            "$ref": "#/definitions/Account.PasswordResetResponse"
+                        }
+                    },
+                }
+            }
+        },
+        "/user/reset-password": {
+            "post": {
+                "tags": ["auth"],
+                "summary": "Reset user password",
+                "description": "Resets the user's password using a valid reset token.",
+                "operationId": "resetPassword",
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Account.ResetPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password reset successful",
+                    },
+                }
+            }
+        },
+
+        "/user/auth": {
+            "get": {
+                "tags": ["user"],
+                "summary": "Validate JWT Token",
+                "description": "Checks if the provided JWT token is valid and returns the authenticated user details.",
+                "produces": ["application/json"],
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully authenticated",
+                    },
+                    "401": {
+                        "description": "Invalid or missing token"
+                    }
+                }
+            }
+        }
+
+    },
+
+    "securityDefinitions": {
+        "api_key": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Enter the token with the `Bearer: ` prefix, e.g. \"Bearer abcde12345\"."
+        },
+    },
+
+    "definitions": {
+
+        "Account.PasswordResetRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                }
+            },
+            "required": ["email"]
+        },
+        "Account.PasswordResetResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Password reset link sent successfully."
+                }
+            }
+        },
+        "Account.PasswordResetError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Database error occurred"
+                },
+                "error": {
+                    "type": "object",
+                    "properties": {
+                        "fatal": {
+                            "type": "boolean",
+                            "example": false
+                        },
+                        "errno": {
+                            "type": "integer",
+                            "example": 1054
+                        },
+                        "sqlState": {
+                            "type": "string",
+                            "example": "42S22"
+                        },
+                        "code": {
+                            "type": "string",
+                            "example": "ER_BAD_FIELD_ERROR"
+                        }
+                    }
+                }
+            }
+        },
+        "Account.ResetPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "a1b2c3d4e5f6g7h8i9j0"
+                },
+                "newPassword": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "newSecurePassword123!"
+                }
+            },
+            "required": ["token", "newPassword"]
+        },
+        "Account.ResetPasswordError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Invalid Reset Request"
+                }
+            }
+        },
+
+        "User.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name",
+                "state",
+                "payment_information",
+                "faculty",
+                "email",
+                "password",
+                "role"
+            ],
+            "User.properties": {
+                "first_name": { "type": "string" },
+                "last_name": { "type": "string" },
+                "state": { "type": "string" },
+                "payment_information": { "type": "string" },
+                "faculty": { "type": "string" },
+                "email": { "type": "string", "format": "email" },
+                "password": { "type": "string", "format": "password" },
+                "role": { "type": "string" }
+            }
+        },
+        "User.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "message": { "type": "string" }
+            }
+        },
+        "User.LoginRequest": {
+            "type": "object",
+            "required": ["email", "password"],
+            "properties": {
+                "email": { "type": "string", "format": "email" },
+                "password": { "type": "string", "format": "password" }
+            }
+        },
+        "User.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "status": { "type": "string" },
+                "token": { "type": "string" },
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "user": {
+                            "type": "object",
+                            "properties": {
+                                "user_id": { "type": "integer" },
+                                "role": { "type": "string" },
+                                "email": { "type": "string", "format": "email" },
+                                "username": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+
+    },
+
+    "externalDocs": {
+        "description": "Find out how to create your private/public API keys",
+        "url": "https://dev.mailjet.com/"
+    }
+}
