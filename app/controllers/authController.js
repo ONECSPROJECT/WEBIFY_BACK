@@ -93,6 +93,9 @@ exports.protect = async (req, res, next) => {
     try {
         let token;
 
+        console.log('=======================================');
+        console.log(req.headers);
+        console.log('=======================================');
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             token = req.headers.authorization.split(' ')[1];
         } else if (req.cookies.jwt) {
@@ -130,40 +133,9 @@ exports.restrictTo = (...roles) => {
     };
 };
 
-exports.updatePassword = async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
-
-    let conn;
-    try {
-        conn = await db.getConnection();
-        const { user_id } = req.user;
-        const users = await conn.query(
-            'SELECT * FROM Account WHERE user_id = ?',
-            [user_id]
-        );
-
-        if (users.length === 0) {
-            return res.status(400).json({ error: 'User not found' });
-        }
-
-        const user = users[0];
-        const isMatch = await bcrypt.compare(oldPassword, user.password_hash);
-        if (!isMatch) {
-            return res.status(400).json({ error: 'Incorrect old password' });
-        }
-
-        const hashedPassword = await bcrypt.hash(newPassword, 12);
-        await conn.query(
-            'UPDATE Account SET password_hash = ? WHERE user_id = ?',
-            [hashedPassword, req.user.user_id]
-        );
-
-        createSendToken(user, 200, req, res);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Server error' });
-    } finally {
-        if (conn) conn.release();
-    }
+exports.testProtected = async (req, res) => {
+    res.status(200).json({
+        "message": "Authenticated!"
+    })
 };
 

@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/user', userRoutes);
+app.use('/api', userRoutes);
 
 // Root
 app.get('/', (req, res) => {

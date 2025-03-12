@@ -10,5 +10,7 @@ router.post('/login', authController.login);
 router.post('/request-reset-password', passResetController.requestPasswordReset);
 router.post('/reset-password', passResetController.resetPassword);
 
+// testing protect middleware
+router.get('/auth', authController.protect, authController.testProtected);
 
 module.exports = router;
