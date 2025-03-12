@@ -10,9 +10,7 @@ const mailjet = Mailjet.apiConnect(
 
 function request(recipientMail, url) {
 
-    assert.match(senderMail, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid sender email format");
     assert.match(recipientMail, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid recipient email format");
-    assert.match(url, /^(https?:\/\/)?([\w.-]+)\.([a-zA-Z]{2,})(\/\S*)?$/, "Invalid URL format");
 
     return mailjet
         .post('send', { version: 'v3.1' })

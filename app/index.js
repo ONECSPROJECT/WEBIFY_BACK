@@ -43,3 +43,7 @@ app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
 });
 
+app.use((err, req, res, next) => {
+    console.error("🔥 Uncaught Error:", err);
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+});

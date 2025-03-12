@@ -1,10 +1,10 @@
 const pool = require('../config/db');
 
 class PasswordReset {
-    static async create(accountId, token, expiresAt) {
+    static async create(account_id, token, expiresAt) {
         return pool.query(
             'INSERT INTO PasswordReset (account_id, token, expires_at) VALUES (?, ?, ?)',
-            [accountId, token, expiresAt]
+            [account_id, token, expiresAt]
         )
     }
 
@@ -19,7 +19,7 @@ class PasswordReset {
     static async deleteByUserId(accountId) {
         return pool.query(
             'DELETE FROM PasswordReset WHERE account_id = ?',
-            [accountId]
+            [account_id]
         )
     }
 }

@@ -3,8 +3,8 @@ const pool = require('../config/db');
 class Account {
     static async findByEmail(email) {
         return pool.query(
-            'SELECT * FROM Account WHERE token = ? AND expires_at > NOW()',
-            [token]
+            'SELECT * FROM Account WHERE email = ?',
+            [email]
         )
         return rows[0] || null; // could have multiple records
     }
