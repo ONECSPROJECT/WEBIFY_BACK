@@ -12,16 +12,21 @@ class PasswordReset {
         const [rows] = await pool.query(
             'SELECT * FROM PasswordReset WHERE token = ? AND expires_at > NOW()',
             [token]
+
         )
-        return rows[0] || null; // could have multiple records
+        console.log("query result inside findByToken:", rows);
+
+        return rows; // could have multiple records
     }
 
-    static async deleteByUserId(accountId) {
+    static async deleteByAccountId(accountId) {
         return pool.query(
             'DELETE FROM PasswordReset WHERE account_id = ?',
-            [account_id]
+            [accountId]
         )
     }
 }
+
+
 
 module.exports = PasswordReset;

@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const bcrypt=require('bcrypt')
 const assert = require('node:assert/strict');
 const { request } = require('../utils/emailService');
 const PasswordReset = require('../models/PasswordReset');
@@ -34,7 +35,7 @@ exports.requestPasswordReset = async (req, res) => {
         console.log("checkpoint")
 
         const resetLink = `http://localhost:5173/ResetPass?token=${token}`;
-        console.log("checkpoint")
+        console.log("checkpoint token: ",token)
 
         await request(email, resetLink);
     
@@ -55,21 +56,34 @@ exports.requestPasswordReset = async (req, res) => {
 
 
 exports.resetPassword = async (req, res) => {
-    const { token, newPassword } = req.body;
 
+    const { token, newPassword } = req.body;
+    console.log("checkpoint")
     try {
-        const resetEntry = PasswordReset.findByToken(token);
+        const resetEntry = await PasswordReset.findByToken(token);
+        console.log("reset entry:",resetEntry);
+
         if (!resetEntry) {
             console.log('Reset entry not found!');
             return res.status(404).json({ message: 'Invalid Reset Request' });
         }
+        console.log("checkpoint again")
+
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
+        console.log("password hashed");
 
         await Account.updatePassword(resetEntry.account_id, hashedPassword, salt);
+        console.log("Password updated");
+        console.log(resetEntry.account_id)
         await PasswordReset.deleteByAccountId(resetEntry.account_id);
+        console.log("Password deleted");
 
+        res.status(200).json({
+            status: "success",
+            message: "Password resetted successfully.",
+        });
     } catch (error) {
         return res.status(500).json({
             message: 'Database error occurred',
