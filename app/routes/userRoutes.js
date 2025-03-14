@@ -1,16 +1,17 @@
 const express = require('express');
 const authController = require('../controllers/authController');
-const passResetController = require('../controllers/passResetController');
+const passController = require('../controllers/passController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 
-router.post('/request-reset-password', passResetController.requestPasswordReset);
-router.post('/reset-password', passResetController.resetPassword);
+router.post('/request-reset-password', passController.requestPassword);
+router.post('/reset-password', passController.resetPassword);
 
 // testing protect middleware
-router.get('/auth', authController.protect, authController.testProtected);
+router.get('/auth', authMiddleware.protect, authController.testProtected);
 
 module.exports = router;
