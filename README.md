@@ -3,19 +3,29 @@
 ## 📁 Directory Structure
 ```
 back/
-| .git/                  # Git repository
-| app/                   # Application code
-| | config/              # Configuration files
-| | Dockerfile           # Dockerfile for the Node.js app
-| | index.js             # Main server file
-| | package-lock.json    # NPM lock file
-| | package.json         # Node.js dependencies
-| db/                    # Database-related files
-| .env                   # Environment variables (not committed)
-| .gitignore             # Git ignore rules
-| README.md              # Documentation
-| docker-compose.yml     # Docker Compose configuration
-| init.sql               # SQL initialization script
+├── app
+│   ├── config
+│   │   ├── db.js
+│   │   └── swagger.json
+│   ├── controllers
+│   │   ├── authController.js
+│   │   └── passResetController.js
+│   ├── Dockerfile
+│   ├── index.js
+│   ├── models
+│   │   ├── Account.js
+│   │   └── PasswordReset.js
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── routes
+│   │   └── userRoutes.js
+│   └── utils
+│       └── emailService.js
+├── db
+│   └── init.sql
+├── docker-compose.yml
+├── README.md
+└── run.sh
 ```
 
 ---

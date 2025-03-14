@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { request } = require('../utils/emailService');
 const PasswordReset = require('../models/PasswordReset');
 const Account = require('../models/Account');
+const bcrypt = require('bcrypt');
 
 
 exports.requestPasswordReset = async (req, res) => {
@@ -22,7 +23,7 @@ exports.requestPasswordReset = async (req, res) => {
 
         await PasswordReset.create(account_id, token, expiresAt);
 
-        const resetLink = `http://localhost:5173/ResetPass?token=${token}`
+        const resetLink = `http://localhost:5173/<reset-front-page>?token=${token}`
         await request(email, resetLink);
 
         res.status(200).json({
