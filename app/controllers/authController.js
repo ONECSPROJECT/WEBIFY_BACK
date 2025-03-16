@@ -40,11 +40,12 @@ exports.register = async (req, res) => {
         conn = await db.getConnection();
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
-
+        console.log("password hashed")
         const userResult = await conn.query(
             'INSERT INTO User (first_name, last_name, state, payment_information, faculty) VALUES (?, ?, ?, ?, ?)',
             [first_name, last_name, state, payment_information, faculty]
         );
+        console.log("teacher added")
         const user_id = userResult.insertId;
 
         await conn.query(
