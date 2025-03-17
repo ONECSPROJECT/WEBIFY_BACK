@@ -20,19 +20,10 @@ CREATE TABLE Account (
     user_id INT UNIQUE,
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
-INSERT INTO User (first_name, last_name, state, payment_information, faculty)
-VALUES ('John', 'Doe', 'Active', 'Paid', 'Computer Science');
+
 
 SET @user_id = LAST_INSERT_ID();
 
-INSERT INTO Account (email, salt, password_hash, role, user_id)
-VALUES (
-    'admin@example.com',
-    'random_salt_value',
-    '$2b$10$Ez3.Qd3ZVasVO7tUbhVS1uUs4e/d/8hRq2YfNWyHwDi0W5MRpNbjO',
-    'admin',
-    @user_id
-);
 
 
 CREATE TABLE SessionType (
@@ -61,7 +52,7 @@ CREATE TABLE ProfRank (
     pay_rate_course INT NOT NULL,
     pay_rate_lab INT NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE
-);
+);  
 
 CREATE TABLE Period (
     period_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -105,3 +96,52 @@ CREATE TABLE PasswordReset (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (account_id) REFERENCES Account(user_id) ON DELETE CASCADE
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+Create table Promotion (promoID int primary key auto_increment, name char(255) not null);
+create table section (sectionID  int primary key auto_increment, promoID int not null, name char(255) not null, foreign key (promoID) references Promotion(promoID));
+CREATE TABLE `Group` (
+    groupID INT PRIMARY KEY AUTO_INCREMENT,
+    sectionID INT NOT NULL,
+    name CHAR(255) NOT NULL,
+    FOREIGN KEY (sectionID) REFERENCES Section(sectionID)
+);
+
+CREATE TABLE DayOfWeek (
+    dayID INT PRIMARY KEY AUTO_INCREMENT,
+    name ENUM('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday') NOT NULL
+);
+CREATE TABLE Salle (
+    salleID INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255) NOT NULL
+);
+CREATE TABLE GlobalTimeTable (
+    timetableID INT PRIMARY KEY AUTO_INCREMENT,
+    promoID INT NOT NULL,
+    sectionID INT NULL,
+    groupID INT NULL,  
+    teacherID INT NOT NULL,
+    dayID INT NOT NULL,
+    startTime TIME NOT NULL,
+    duration INT NOT NULL, -- Duration in minutes
+    sessionType ENUM('Course', 'Lab Work', 'Tutorial') NOT NULL,
+    salleID INT NOT NULL,
+    FOREIGN KEY (promoID) REFERENCES Promotion(promoID),
+    FOREIGN KEY (sectionID) REFERENCES Section(sectionID),
+    FOREIGN KEY (groupID) REFERENCES `Group`(groupID),
+    FOREIGN KEY (teacherID) REFERENCES user(user_id),
+    FOREIGN KEY (dayID) REFERENCES DayOfWeek(dayID),
+    FOREIGN KEY (salleID) REFERENCES Salle(salleID)
+);
+
