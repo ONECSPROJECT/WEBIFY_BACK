@@ -106,3 +106,38 @@ exports.getGroups = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+
+
+exports.getSectionName = async (req, res) => {
+    const { sectionID } = req.query;
+    if (!sectionID) return res.status(400).json({ error: "Missing sectionID parameter" });
+
+    try {
+        const conn = await db.getConnection();
+        const rows = await conn.query("SELECT name FROM section WHERE sectionID = ?", [sectionID]);
+        conn.release();
+        console.log("Fetched section:", rows); // Debugging line
+
+        res.status(200).json({ name: rows.length > 0 ? rows[0].name : "All" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
+exports.getGroupName = async (req, res) => {
+    const { groupID } = req.query;
+    if (!groupID) return res.status(400).json({ error: "Missing groupID parameter" });
+
+    try {
+        const conn = await db.getConnection();
+        const rows = await conn.query("SELECT name FROM `Group` WHERE groupID = ?", [groupID]);
+        conn.release();
+
+        res.status(200).json({ name: rows.length > 0 ? rows[0].name : "All" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error" });
+    }
+};

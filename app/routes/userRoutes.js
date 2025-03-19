@@ -17,5 +17,6 @@ router.get('/fetch-promotions',fetchController.getPromotions)
 router.get('/fetch-sections',fetchController.getSections)
 router.get('/fetch-groups',fetchController.getGroups)
 router.get('/fetch-table-teachers',fetchController.getTableTeachers)
-
+router.get("/fetch-section-name", fetchController.getSectionName);
+router.get("/fetch-group-name", fetchController.getGroupName);
 module.exports = router;
