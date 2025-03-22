@@ -3,19 +3,38 @@
 ## 📁 Directory Structure
 ```
 back/
-| .git/                  # Git repository
-| app/                   # Application code
-| | config/              # Configuration files
-| | Dockerfile           # Dockerfile for the Node.js app
-| | index.js             # Main server file
-| | package-lock.json    # NPM lock file
-| | package.json         # Node.js dependencies
-| db/                    # Database-related files
-| .env                   # Environment variables (not committed)
-| .gitignore             # Git ignore rules
-| README.md              # Documentation
-| docker-compose.yml     # Docker Compose configuration
-| init.sql               # SQL initialization script
+| .git/                  
+| app/                   
+| | config/              
+| | controllers/         
+| | | absenceController.js
+| | | authController.js
+| | | passResetController.js
+| | | periodController.js
+| | | userController.js
+| | dist/               
+| | models/             
+| | | Absence.js
+| | | Account.js
+| | | BaseModel.js
+| | | PasswordReset.js
+| | routes/             
+| | | absenceRoutes.js
+| | | periodRoutes.js
+| | | userRoutes.js
+| | utils/              
+| | .dockerignore       
+| | db-test.js          
+| | Dockerfile          
+| | index.js            
+| | package-lock.json   
+| | package.json        
+| db/                    
+| .env                   
+| .gitignore             
+| README.md              
+| docker-compose.yml     
+| init.sql               
 ```
 
 ---

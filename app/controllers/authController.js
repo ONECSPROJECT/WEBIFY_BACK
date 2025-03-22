@@ -36,6 +36,13 @@ exports.register = async (req, res) => {
     let conn;
     try {
         conn = await db.getConnection();
+        const [existingAccount] = await conn.query(
+            'SELECT * FROM Account WHERE email = ?',
+            [email]
+        );
+        if ( existingAccount) {
+            return res.status(400).json({ message: 'Email already taken' });
+        }
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
 

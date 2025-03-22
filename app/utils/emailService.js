@@ -1,18 +1,28 @@
 ////////////////////////////////////////////////////
 // send an email with given content using MailJet //
 ////////////////////////////////////////////////////
+const dotenv = require('dotenv');
 const assert = require('node:assert/strict');
 const Mailjet = require('node-mailjet');
+dotenv.config();
+
+
+
 const mailjet = Mailjet.apiConnect(
-    process.env.MJ_APIKEY_PUBLIC || 'your-public-key',
-    process.env.MJ_APIKEY_PRIVATE || 'your-private-key',
+    process.env.MJ_APIKEY_PUBLIC || 'ta_nouvelle_cle_publique',
+    process.env.MJ_APIKEY_PRIVATE || 'ta_nouvelle_cle_privee'
 );
+console.log("Mailjet Public Key:", process.env.MJ_APIKEY_PUBLIC);
+console.log("Mailjet Private Key:", process.env.MJ_APIKEY_PRIVATE);
+
+
+// Définition de senderMail avec une variable d'environnement
+const senderMail = process.env.SENDER_MAIL || 'default-email@gmail.com';
 
 function request(recipientMail, url) {
-
     assert.match(senderMail, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid sender email format");
     assert.match(recipientMail, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid recipient email format");
-    assert.match(url, /^(https?:\/\/)?([\w.-]+)\.([a-zA-Z]{2,})(\/\S*)?$/, "Invalid URL format");
+    assert.match(url, /^(https?:\/\/)?(localhost|[\w.-]+)(:\d+)?(\/\S*)?$/, "Invalid URL format");
 
     return mailjet
         .post('send', { version: 'v3.1' })
@@ -20,7 +30,7 @@ function request(recipientMail, url) {
             Messages: [
                 {
                     From: {
-                        Email: 'hardcoded-email',
+                        Email: senderMail,  // Utilisation de senderMail défini dynamiquement
                         Name: "Webify"
                     },
                     To: [
@@ -43,7 +53,7 @@ function request(recipientMail, url) {
                     `
                 }
             ]
-        })
+        });
 }
 
 module.exports = { request };

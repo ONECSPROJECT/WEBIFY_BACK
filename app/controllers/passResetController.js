@@ -7,40 +7,45 @@ const Account = require('../models/Account');
 
 exports.requestPasswordReset = async (req, res) => {
     const { email } = req.body;
+    console.log("Email reçu :", email);
     assert.match(email, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid email format");
-
     try {
-        const account = await Account.findByEmail(email);
-        if (!account) {
+        const accounts = await Account.findByEmail(email);
+        if (!accounts || accounts.length === 0) { 
             console.log('Account not found');
             return res.status(404).json({ message: 'Account not found' });
         }
-
+        const account = accounts[0]; 
+        console.log("Résultat de findByEmail :", account);
+    
         const account_id = account.account_id;
         const token = crypto.randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + 3600000); // 1 hour
-
+    
+        console.log("Token:", token, "ExpiresAt:", expiresAt);
+    
         await PasswordReset.create(account_id, token, expiresAt);
-
-        const resetLink = `http://localhost:5173/<reset-front-page>?token=${token}`
+        console.log("Password reset entry created in DB");
+    
+        const resetLink = `http://localhost:6009/ResetPass?token=${token}`;
+        console.log("Reset link generated:", resetLink);
+    
         await request(email, resetLink);
-
+        console.log("Email sent successfully");
+    
         res.status(200).json({
             status: 'success',
             message: 'Password reset link sent successfully.'
         });
-
+    
     } catch (error) {
+        console.error("Error occurred:", error);
         return res.status(500).json({
             message: 'Database error occurred',
-            error: {
-                fatal: error.fatal,
-                errno: error.errno,
-                sqlState: error.sqlState,
-                code: error.code,
-            }
+            error: error
         });
     }
+    
 }
 
 

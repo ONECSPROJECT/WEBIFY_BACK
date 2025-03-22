@@ -4,6 +4,8 @@ const morgan = require('morgan');
 const cors = require('cors');
 const path = require('node:path');
 const userRoutes = require('./routes/userRoutes');
+const absenceRoutes = require('./routes/absenceRoutes');
+const periodRoutes = require('./routes/periodRoutes');
 
 dotenv.config({ path: './config.env' });
 
@@ -28,6 +30,10 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/user', userRoutes);
+app.use('/api/absence', absenceRoutes);
+app.use('/api/period', periodRoutes);
+
+
 
 // Root
 app.get('/', (req, res) => {
