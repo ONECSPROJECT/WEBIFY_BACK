@@ -12,11 +12,11 @@ router.post('/reset-password', passResetController.resetPassword);
 
 
 router.get('/fetch-teachers',fetchController.getTeachers)
-router.get('/fetch-salles',fetchController.getSalles)
 router.get('/fetch-promotions',fetchController.getPromotions)
-router.get('/fetch-sections',fetchController.getSections)
-router.get('/fetch-groups',fetchController.getGroups)
 router.get('/fetch-table-teachers',fetchController.getTableTeachers)
-router.get("/fetch-section-name", fetchController.getSectionName);
-router.get("/fetch-group-name", fetchController.getGroupName);
+router.get('/fetch-speciality',fetchController.getSpeciality)
+router.get('/fetch-sessions',fetchController.getSessions)
+
+router.get('/fetch-speciality-name',fetchController.getSpecialityName)
+
 module.exports = router;

@@ -41,21 +41,7 @@ exports.getTableTeachers = async (req, res) => {
 
 
 
-exports.getSalles = async (req, res)=>{
-    let conn;
-    try {
-        conn = await db.getConnection();
-        const teachers = await conn.query(
-            'SELECT name FROM salle '
-        );
-        res.status(200).json(teachers);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({error: 'Server error'});
-    }finally {
-        if (conn) conn.release();
-    }
-};
+
 
 
 
@@ -69,75 +55,60 @@ exports.getPromotions = async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Server error' });
     }
-};
+}
 
-exports.getSections = async (req, res) => {
+
+
+exports.getSessions = async (req, res) => {
+    try {
+        const conn = await db.getConnection()
+        const sessions = await conn.query('SELECT DISTINCT name FROM sessiontype')
+        res.status(200).json(sessions);
+        conn.release();
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
+}
+
+
+
+exports.getSpeciality = async (req, res) => {
     const { promotion } = req.query;
     if (!promotion) return res.status(400).json({ error: 'Missing promotion parameter' });
 
     try {
         const conn = await db.getConnection();
-        const sections = await conn.query(
-            'SELECT sectionID, name FROM Section WHERE promoid = (SELECT promoid FROM Promotion WHERE name = ?)',
+        const specialities = await conn.query(
+            'SELECT specialityid, name FROM speciality WHERE promoid = (SELECT promoid FROM Promotion WHERE name = ?)',
             [promotion]
         );
-        res.status(200).json(sections);
-        conn.release();
+        res.status(200).json(specialities)
+        conn.release()
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error' });
     }
-};
-
-exports.getGroups = async (req, res) => {
-    const { section } = req.query;
-    if (!section) return res.status(400).json({ error: 'Missing section parameter' });
-
-    try {
-        const conn = await db.getConnection();
-        const groups = await conn.query(
-            'SELECT groupID, name FROM `Group` WHERE sectionID = ?',
-            [section]
-        );
-        res.status(200).json(groups);
-        conn.release();
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Server error' });
-    }
-};
+}
 
 
 
-exports.getSectionName = async (req, res) => {
-    const { sectionID } = req.query;
-    if (!sectionID) return res.status(400).json({ error: "Missing sectionID parameter" });
+
+
+exports.getSpecialityName = async (req, res) => {
+    const {specialityid} = req.query;
+    if (!specialityid) return res.status(400).json({ error: "Missing specialityid parameter" });
 
     try {
         const conn = await db.getConnection();
-        const rows = await conn.query("SELECT name FROM section WHERE sectionID = ?", [sectionID]);
-        conn.release();
-        console.log("Fetched section:", rows); // Debugging line
+        const rows = await conn.query("SELECT name FROM speciality WHERE specialityid = ?", [specialityid]);
+        conn.release()
+        console.log("Fetched speciality:",rows[0].name)
 
-        res.status(200).json({ name: rows.length > 0 ? rows[0].name : "All" });
-    } catch (error) {
+        res.status(200).json({name: rows.length > 0 ? rows[0].name: "Null" });
+    } catch (error){
         console.error(error);
         res.status(500).json({ error: "Server error" });
     }
 };
 
-exports.getGroupName = async (req, res) => {
-    const { groupID } = req.query;
-    if (!groupID) return res.status(400).json({ error: "Missing groupID parameter" });
-
-    try {
-        const conn = await db.getConnection();
-        const rows = await conn.query("SELECT name FROM `Group` WHERE groupID = ?", [groupID]);
-        conn.release();
-
-        res.status(200).json({ name: rows.length > 0 ? rows[0].name : "All" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Server error" });
-    }
-};
