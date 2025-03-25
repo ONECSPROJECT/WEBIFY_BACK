@@ -1,5 +1,7 @@
 const db = require('../config/db');
 
+
+
 exports.getTeachers = async (req, res) => {
     let conn;
     try {

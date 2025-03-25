@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
-const util = require('util');
+const util = require('util')
 require('dotenv').config();
 console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
@@ -61,6 +61,9 @@ exports.register = async (req, res) => {
         if (conn) conn.release();
     }
 };
+
+
+
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
