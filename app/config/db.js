@@ -5,7 +5,7 @@ const pool = mariadb.createPool({
     host: 'localhost',
     user: 'root',
     password: 'BecauseEverybodyIsChanging!!+6367',
-    database: 'suphours'
+    database: 'planB'
 });
 
 
