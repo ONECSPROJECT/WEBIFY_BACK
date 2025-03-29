@@ -20,5 +20,7 @@ router.get('/fetch-table-teachers',fetchController.getTableTeachers)
 router.get('/fetch-speciality',fetchController.getSpeciality)
 router.get('/fetch-sessions',fetchController.getSessions)
 router.get('/fetch-speciality-name',fetchController.getSpecialityName)
-
+router.get('/fetch-scheds',fetchController.getSched)
+router.get('/fetch-admin-name',fetchController.fetchAdminName)
+router.get('/fetch-admin-email',fetchController.fetchAdminEmail)
 module.exports = router;
