@@ -58,3 +58,71 @@ exports.saveSched = async (req, res) => {
         if (conn) conn.release();
     }
 };
+
+
+
+exports.saveHoliday=async (req,res)=>{
+    const {startDate,endDate}=req.body;
+    try{
+        let conn= await db.getConnection()
+        let response=await conn.query(`insert into holidays (startdate,enddate) values (?,?);`,[startDate,endDate])
+        res.status(200).json("holiday saved!")
+        conn.release()
+        }
+    catch(error){
+        console.error(error)
+    }
+}
+
+
+exports.saveSemesters=async (req,res)=>{
+    const {academicSemesters}=req.body;
+    try{
+        let conn=await db.getConnection()
+       for(const s of ["semestre1","semestre2"]){
+        await conn.query(
+            `insert into semesters (name,startdate,enddate) values (?, ?,?)`,[academicSemesters[s].name, academicSemesters[s].start,academicSemesters[s].end]
+          )
+       }
+        res.status(200).json("nice")
+        conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+exports.savePeriods=async(req,res)=>{
+    const{academicPeriods}=req.body
+    try{
+        let conn=await db.getConnection()
+        for(const s of ["periode1","periode2","periode3"]){
+            await conn.query(
+                `insert into periods (name,startdate,enddate,semesterid) values (?, ?,?,?)`,[academicPeriods[s].name, academicPeriods[s].start,academicPeriods[s].end,academicPeriods[s].Semesterid]
+              )
+           }
+            res.status(200).json("nice")
+            conn.release()
+        }
+        catch(error){
+            console.log(error)
+        }
+    
+}
+
+exports.saveVacations=async(req,res)=>{
+    const {teacher,startDate,endDate}=req.body;
+    try{
+        let conn=await db.getConnection()
+        let semesterid=await conn.query(`select semesterid from semesters where startdate<=? and ?<=enddate`,[startDate,endDate])
+        if (semesterid){
+            await conn.query(`insert into vacation(teacherid, startdate, enddate,semesterid) values (?,?,?,?);`,[teacher,startDate,endDate,semesterid[0].semesterid])
+            res.status(200).json("nice")
+            console.log("done")
+            conn.release()
+        }
+    }
+    catch(error){
+        console.log(error)
+    }
+}

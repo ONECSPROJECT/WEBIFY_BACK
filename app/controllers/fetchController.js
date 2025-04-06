@@ -7,7 +7,7 @@ exports.getTeachers = async (req, res) => {
     try {
         conn = await db.getConnection();
         const teachers = await conn.query(
-            'SELECT first_name, last_name FROM user',
+            'SELECT user_id, first_name, last_name FROM user',
         );
         res.status(200).json(teachers);
     } catch (error) {
@@ -24,6 +24,7 @@ exports.getTableTeachers = async (req, res) => {
         conn = await db.getConnection();
         const teachers = await conn.query(
             `SELECT 
+            U.user_id,
                 CONCAT(U.first_name,' ', U.last_name) AS full_name,
                 A.email,
                 U.faculty AS grade,
@@ -47,36 +48,36 @@ exports.getTableTeachers = async (req, res) => {
 
 
 
-exports.getPromotions = async (req, res) => {
+exports.getPromotions =async(req, res) => {
     try {
         const conn = await db.getConnection();
         const promotions = await conn.query('SELECT DISTINCT name FROM Promotion');
         res.status(200).json(promotions);
         conn.release();
     } catch (error) {
-        console.error(error);
+        console.error(error)
         res.status(500).json({ error: 'Server error' });
     }
 }
 
 
 
-exports.getSessions = async (req, res) => {
+exports.getSessions =async (req,res)=> {
     try {
         const conn = await db.getConnection()
         const sessions = await conn.query('SELECT DISTINCT name FROM sessiontype')
         res.status(200).json(sessions);
         conn.release();
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Server error' });
+        console.error(error)
+        res.status(500).json({ error: 'Server error' })
     }
 }
 
 
 
-exports.getSpeciality = async (req, res) => {
-    const { promotion } = req.query;
+exports.getSpeciality =async(req, res) =>{
+    const {promotion} = req.query;
     if (!promotion) return res.status(400).json({ error: 'Missing promotion parameter' });
 
     try {
@@ -97,7 +98,7 @@ exports.getSpeciality = async (req, res) => {
 
 
 
-exports.getSpecialityName = async (req, res) => {
+exports.getSpecialityName=async (req, res)=> {
     const {specialityid} = req.query;
     if (!specialityid) return res.status(400).json({ error: "Missing specialityid parameter" });
 
@@ -141,38 +142,99 @@ exports.fetchAdminEmail=async(req,res)=>{
     }
 }
 
-exports.getSched=async(req,res)=>{
-    const {promoid}=req.query
-    if (!promoid) return res.status(400).json({error: "missing promoid" });
+exports.getSched=async (req, res) =>{
+    try{
+      const conn=await db.getConnection()
+      const scheds =await conn.query(`
+        SELECT 
+        g.presence,
+          g.starttime,
+          g.duration,
+          g.period,
+          d.name AS day_of_week,
+          CONCAT(u.last_name, ' ', u.first_name) AS teacher,
+          s.name AS session_type,
+          spec.name AS speciality,
+          p.name AS promotion
+        FROM globaltimetableplanb g
+        LEFT JOIN user u ON g.teacherid = u.user_id
+        LEFT JOIN sessiontype s ON g.sessiontypeid = s.session_type_id
+        LEFT JOIN speciality spec ON g.specialityid = spec.specialityid
+        LEFT JOIN promotion p ON g.promoid = p.promoid
+        LEFT JOIN dayofweek d ON g.dayid = d.dayid
+        WHERE g.isExtra = 1;`)
+  
+      res.json(scheds)
+      console.log(scheds)
+    } catch (error){
+      console.error("Error fetching schedules:", error)
 
-    try {
-        const conn= await db.getConnection()
-        const scheds= await conn.query(`
-           select 
-    g.starttime,
-    g.duration,
-    g.period,
-    d.name as day_of_week,
-    concat(u.last_name,' ',u.first_name) as teacher,
-    s.name as session_type,
-    spec.name as speciality,
-    p.name as promotion,
-    g.isExtra
-FROM globaltimetableplanb g
-left join user u on g.teacherid = u.user_id
-left join sessiontype s on g.sessiontypeid = s.session_type_id
-left join speciality spec on g.specialityid = spec.specialityid
-left join promotion p on g.promoid = p.promoid
-left join dayofweek d on g.dayid = d.dayid
-WHERE g.promoid = ?;
-`,[promoid])
+    }
+  };
+  
 
-        res.status(200).json(scheds);
-        if(promoid==4){
-            console.log("response: ",scheds)}
+       
+
+
+exports.getHolidays=async(req,res)=>{
+    let {date}=req.query;
+    try{
+        let conn=await db.getConnection()
+        let holidayApproval=await conn.query(`select holidayid from holidays where ? >startdate and ?<enddate; `,[date,date])
+        res.status(200).json(holidayApproval[0]||null)
         conn.release()
-    } catch(error){
-        console.error(error)
-        res.status(500).json({error:'Server error' });
+    }
+    catch(error){
+        res.status(500).json(error)
+    }
+}
+
+
+exports.getSelectiveTeachers=async (req,res)=>{
+    const{date,day}=req.query;
+    try{
+        let conn=await db.getConnection()
+        console.log("day",req.query)
+        let dayid=await conn.query(`select dayid from dayofweek where name =?`,[day])
+        console.log("day id is, ",dayid[0])
+        if (dayid.length===0){
+            res.status(200).json("Today is a weekend")
+        }
+        let selectiveTeachers=await conn.query(`select distinct teacherid from globaltimetableplanb where isextra=1 and dayid=? `,[dayid[0].dayid])
+        console.log("selective teachers:",selectiveTeachers)
+        if(selectiveTeachers[0]){
+            let vacationedTeachers=await conn.query(`select distinct teacherid from vacation where ?>=startdate and ?<=enddate`,[date,date])
+            console.log("vacationed teachers:",vacationedTeachers)
+            if (vacationedTeachers.length>0) {
+                let vacationedTeacherIds = vacationedTeachers.map(v => v.teacherid);
+                selectiveTeachers = selectiveTeachers.filter(teacher => !vacationedTeacherIds.includes(teacher.teacherid));
+            }
+            let teacherIds =selectiveTeachers.map(t=> t.teacherid)
+            if (teacherIds.length >0) {
+                let teacherDetails= await conn.query(
+                    `select user_id as teacherid, first_name,last_name from user where user_id in (?)`, [teacherIds])
+                selectiveTeachers = teacherDetails
+            }
+        }
+        console.log("teacher details: ",selectiveTeachers)
+       res.status(200).json(selectiveTeachers)
+       conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+
+exports.getExtraSessions=async(req,res)=>{
+    const {teacher}=req.query;
+    try{
+        let conn=await db.getConnection()
+        const sessions=await conn.query(`select starttime, duration from globaltimetableplanb where teacherid=? and isextra=1`,[teacher])
+        res.status(200).json(sessions)
+        conn.release()
+    }
+    catch(error){
+        console.log(error)
     }
 }
