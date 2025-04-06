@@ -1,23 +1,27 @@
 services:
   app:
     build: ./app
-    restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     environment:
       - DATABASE_HOST=db
       - DATABASE_USER=root
       - DATABASE_PASSWORD=rootpassword
       - DATABASE_NAME=suphours
+      - JWT_SECRET=verysecuresecret
+      - JWT_EXPIRES_IN=604800  # 7 days in seconds
+      - JWT_COOKIE_EXPIRES_IN=7 # 7 days
+      - NODE_ENV=dev # changing to prod => no swaggerUI
     ports:
       - "3000:3000"
     volumes:
       - ./app:/usr/src/app
-      - /usr/src/app/node_modules
+      - /usr/src/app/node_modules # avoids re-downloading node_modules every time
 
   db:
     image: mariadb:latest
-    restart: always
     environment:
       - MARIADB_ROOT_PASSWORD=rootpassword
       - MARIADB_DATABASE=suphours
@@ -28,7 +32,7 @@ services:
       timeout: 5s
       retries: 3
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - mariadb_data:/var/lib/mysql
 
 

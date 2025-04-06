@@ -1,5 +1,8 @@
+CREATE DATABASE IF NOT EXISTS suphours;
+USE suphours;
+
 CREATE TABLE User (
-    user_id INT PRIMARY KEY,
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name CHAR(255) NOT NULL,
     last_name CHAR(255) NOT NULL,
     state CHAR(50),
@@ -8,7 +11,7 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Account (
-    account_id INT PRIMARY KEY,
+    account_id INT PRIMARY KEY AUTO_INCREMENT,
     email CHAR(255) UNIQUE NOT NULL,
     salt CHAR(255) NOT NULL,
     password_hash CHAR(255) NOT NULL,
@@ -18,14 +21,14 @@ CREATE TABLE Account (
 );
 
 CREATE TABLE SessionType (
-    session_type_id INT PRIMARY KEY,
+    session_type_id INT PRIMARY KEY AUTO_INCREMENT,
     name CHAR(255) NOT NULL,
     conversion_factor INT NOT NULL,
     hierarchy_level INT NOT NULL
 );
 
 CREATE TABLE Schedule (
-    session_id INT PRIMARY KEY,
+    session_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     day_of_week INT NOT NULL,
     start_time INT NOT NULL,
@@ -36,8 +39,8 @@ CREATE TABLE Schedule (
     FOREIGN KEY (session_type) REFERENCES SessionType(session_type_id) ON DELETE SET NULL
 );
 
-CREATE TABLE Rank (
-    rank_id INT PRIMARY KEY,
+CREATE TABLE ProfRank (
+    rank_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     name CHAR(255) NOT NULL,
     pay_rate_course INT NOT NULL,
@@ -46,17 +49,17 @@ CREATE TABLE Rank (
 );
 
 CREATE TABLE Period (
-    period_id INT PRIMARY KEY,
+    period_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     start_date INT NOT NULL,
     end_date INT NOT NULL,
-    rank INT,
+    rank_id INT,
     FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (rank) REFERENCES Rank(rank_id) ON DELETE SET NULL
+    FOREIGN KEY (rank_id) REFERENCES ProfRank(rank_id)
 );
 
 CREATE TABLE Payment (
-    payment_id INT PRIMARY KEY,
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     from_date INT NOT NULL,
     to_date INT NOT NULL,
@@ -68,7 +71,7 @@ CREATE TABLE Payment (
 );
 
 CREATE TABLE AbsenceRecord (
-    record_id INT PRIMARY KEY,
+    record_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     period_id INT,
     date INT NOT NULL,
@@ -77,3 +80,13 @@ CREATE TABLE AbsenceRecord (
     FOREIGN KEY (period_id) REFERENCES Period(period_id) ON DELETE CASCADE
 );
 
+
+-- below is added for password reset functionality. Should figure out a way to easily migrate
+CREATE TABLE PasswordReset (
+    reset_id INT PRIMARY KEY AUTO_INCREMENT,
+    account_id INT NOT NULL,
+    token CHAR(255) UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (account_id) REFERENCES Account(user_id) ON DELETE CASCADE
+);
