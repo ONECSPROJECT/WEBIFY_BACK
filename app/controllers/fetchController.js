@@ -1,6 +1,17 @@
 const db = require('../config/db');
 
-
+exports.getRanks=async(req,res)=>{
+    try{
+        let conn=await db.getConnection()
+        let ranks=await conn.query(`select rankid, name from ranks`)
+        console.log(ranks)
+        res.status(200).json(ranks)
+        conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}
 
 exports.getTeachers = async (req, res) => {
     let conn;
@@ -21,26 +32,15 @@ exports.getTeachers = async (req, res) => {
 exports.getTableTeachers = async (req, res) => {
     let conn;
     try {
-        conn = await db.getConnection();
-        const teachers = await conn.query(
-            `SELECT 
-            U.user_id,
-                CONCAT(U.first_name,' ', U.last_name) AS full_name,
-                A.email,
-                U.faculty AS grade,
-                U.payment_information,
-                U.state
-            FROM User U
-            INNER JOIN Account A ON U.user_id = A.user_id`
-        );
-        res.status(200).json(teachers);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Server error' });
+        conn =await db.getConnection()
+        const teachers=await conn.query(`select u.user_id, concat(u.first_name,' ', u.last_name) as full_name,a.email,u.faculty AS grade,u.payment_information,u.state from user u inner join Account a on u.user_id=a.user_id`);
+        res.status(200).json(teachers)
+    } catch(error){
+        console.error(error)
     } finally {
-        if (conn) conn.release();
+        if (conn) conn.release()
     }
-};
+}
 
 
 
@@ -142,35 +142,19 @@ exports.fetchAdminEmail=async(req,res)=>{
     }
 }
 
-exports.getSched=async (req, res) =>{
+exports.getSched=async (req,res) =>{
     try{
       const conn=await db.getConnection()
       const scheds =await conn.query(`
-        SELECT 
-        g.presence,
-          g.starttime,
-          g.duration,
-          g.period,
-          d.name AS day_of_week,
-          CONCAT(u.last_name, ' ', u.first_name) AS teacher,
-          s.name AS session_type,
-          spec.name AS speciality,
-          p.name AS promotion
-        FROM globaltimetableplanb g
-        LEFT JOIN user u ON g.teacherid = u.user_id
-        LEFT JOIN sessiontype s ON g.sessiontypeid = s.session_type_id
-        LEFT JOIN speciality spec ON g.specialityid = spec.specialityid
-        LEFT JOIN promotion p ON g.promoid = p.promoid
-        LEFT JOIN dayofweek d ON g.dayid = d.dayid
-        WHERE g.isExtra = 1;`)
+        select g.presence, g.starttime, g.duration, g.period, d.name as day_of_week, concat(u.last_name, ' ', u.first_name) as teacher, s.name as session_type, spec.name as speciality, p.name as promotion from globaltimetableplanb g left join user u on g.teacherid = u.user_id left join sessiontype s on g.sessiontypeid = s.session_type_id left join speciality spec on g.specialityid = spec.specialityid left join promotion p on g.promoid = p.promoid left join dayofweek d on g.dayid = d.dayid where g.isextra = 1`)
   
       res.json(scheds)
       console.log(scheds)
     } catch (error){
-      console.error("Error fetching schedules:", error)
+      console.error("Error fetching schedules:",error)
 
     }
-  };
+  }
   
 
        
@@ -197,6 +181,7 @@ exports.getSelectiveTeachers=async (req,res)=>{
         console.log("day",req.query)
         let dayid=await conn.query(`select dayid from dayofweek where name =?`,[day])
         console.log("day id is, ",dayid[0])
+        console.log("length",dayid.length)
         if (dayid.length===0){
             res.status(200).json("Today is a weekend")
         }
@@ -217,7 +202,12 @@ exports.getSelectiveTeachers=async (req,res)=>{
             }
         }
         console.log("teacher details: ",selectiveTeachers)
-       res.status(200).json(selectiveTeachers)
+       if(!selectiveTeachers[0]){
+        res.status(200).json("No teacher has extra sessions today")
+       }
+       else{
+        res.status(200).json(selectiveTeachers)
+       }
        conn.release()
     }
     catch(error){
@@ -227,10 +217,12 @@ exports.getSelectiveTeachers=async (req,res)=>{
 
 
 exports.getExtraSessions=async(req,res)=>{
-    const {teacher}=req.query;
+    const {teacher,day}=req.query;
     try{
         let conn=await db.getConnection()
-        const sessions=await conn.query(`select starttime, duration from globaltimetableplanb where teacherid=? and isextra=1`,[teacher])
+        let dayid=await conn.query(`select dayid from dayofweek where name=?`,[day])
+        console.log(dayid[0].dayid)
+        const sessions=await conn.query(`select starttime, duration from globaltimetableplanb where teacherid=? and dayid=? and isextra=1`,[teacher,dayid[0].dayid])
         res.status(200).json(sessions)
         conn.release()
     }

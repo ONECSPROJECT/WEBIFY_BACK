@@ -33,8 +33,8 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 exports.register = async (req, res) => {
-    const { first_name, last_name, state, payment_information, faculty, email, password, role } = req.body;
-
+    const { first_name, last_name, state, payment_information, grade,faculty, email, password, role,date } = req.body;
+    console.log("register infos:",req.body)
     let conn;
     try {
         conn = await db.getConnection();
@@ -45,6 +45,11 @@ exports.register = async (req, res) => {
             'INSERT INTO User (first_name, last_name, state, payment_information, faculty) VALUES (?, ?, ?, ?, ?)',
             [first_name, last_name, state, payment_information, faculty]
         );
+        const periodId=await conn.query(`select periodid from periods where ?>=startdate and ?<=enddate `,[date,date])
+        console.log(periodId[0].periodid)
+        const teacherId=await conn.query(`select user_id from user where last_name=? and first_name=?`,[last_name,first_name])
+        console.log(teacherId[0].user_id)
+        const addToRankHistory=await conn.query(`insert into teacherrankhistory(teacherid,rankid,startdate,enddate,periodid) values(?,?,?,?,?)`,[teacherId[0].user_id, grade,date,null,periodId[0].periodid])
         console.log("teacher added")
         const user_id = userResult.insertId;
 

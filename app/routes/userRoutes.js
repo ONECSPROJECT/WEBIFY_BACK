@@ -31,7 +31,7 @@ router.get('/fetch-admin-email',fetchController.fetchAdminEmail)
 router.get('/fetch-holiday',fetchController.getHolidays)
 router.get('/get-selective-teachers',fetchController.getSelectiveTeachers)
 router.get('/fetch-extra-session',fetchController.getExtraSessions)
-
+router.get('/fetch-ranks',fetchController.getRanks)
 
 router.delete('/delete-teacher',deleteController.deleteTeacher)
 
