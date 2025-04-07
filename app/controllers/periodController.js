@@ -43,8 +43,8 @@ class PeriodController {
 
     static async getAllPeriods(req, res) {
         try {
-            const [rows] = await Period.getAll();
-            res.status(200).json(rows);
+            const periods = await Period.getAll();
+            res.status(200).json(periods);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

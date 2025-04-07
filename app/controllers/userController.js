@@ -48,27 +48,37 @@ class UserController {
         try {
             const query = `
                 SELECT 
-                    User.user_id AS user_id, 
-                    User.first_name, 
-                    User.last_name, 
-                    User.state, 
-                    User.payment_information, 
-                    User.faculty, 
-                    Account.account_id, 
-                    Account.email,
-                    Account.role
-                FROM 
-                    User
-                INNER JOIN Account ON User.user_id = Account.user_id
+                    U.user_id,
+                    U.first_name,
+                    U.last_name,
+                    U.state,
+                    U.payment_information,
+                    U.faculty,
+                    A.account_id,
+                    A.email,
+                    A.role,
+                    R.name AS rank_name,
+                    R.pay_rate_course,
+                    R.pay_rate_lab,
+                    R.pay_rate_tutorial
+                FROM User U
+                INNER JOIN Account A ON U.user_id = A.user_id
+                LEFT JOIN ProfRank PR ON PR.prof_rank_id = (
+                    SELECT MAX(prof_rank_id)
+                    FROM ProfRank
+                    WHERE professor_id = U.user_id
+                )
+                LEFT JOIN Rank R ON PR.rank_id = R.rank_id
             `;
-            
+    
             const users = await db.query(query);
-                res.status(200).json(users);
-          
+            res.status(200).json(users);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.error(error);
+            res.status(500).json({ message: 'Server error while fetching users' });
         }
     }
+    
     
     
     
@@ -79,20 +89,28 @@ class UserController {
                 return res.status(400).json({ message: "User ID is required" });
             }
             const query = `
-                SELECT 
-                    User.user_id AS user_id, 
-                    User.first_name, 
-                    User.last_name, 
-                    User.state, 
-                    User.payment_information, 
-                    User.faculty, 
-                    Account.account_id, 
-                    Account.email, 
-                    Account.role
-                FROM 
-                    User
-                INNER JOIN Account ON User.user_id = Account.user_id
-                WHERE User.user_id = ?
+           SELECT 
+                    U.user_id,
+                    U.first_name,
+                    U.last_name,
+                    U.state,
+                    U.payment_information,
+                    U.faculty,
+                    A.account_id,
+                    A.email,
+                    A.role,
+                    R.name AS rank_name,
+                    R.pay_rate_course,
+                    R.pay_rate_lab,
+                    R.pay_rate_tutorial
+                FROM User U
+                INNER JOIN Account A ON U.user_id = A.user_id
+                LEFT JOIN ProfRank PR ON PR.prof_rank_id = (
+                    SELECT MAX(prof_rank_id)
+                    FROM ProfRank
+                    WHERE professor_id = U.user_id
+                )
+                LEFT JOIN Rank R ON PR.rank_id = R.rank_id
             `;
             const user = await db.query(query, [id]);
             res.status(200).json(user);  

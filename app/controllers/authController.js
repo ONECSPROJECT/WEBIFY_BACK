@@ -31,18 +31,30 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 exports.register = async (req, res) => {
-    const { first_name, last_name, state, payment_information, faculty, email, password, role } = req.body;
+    const {
+        first_name,
+        last_name,
+        state,
+        payment_information,
+        faculty,
+        email,
+        password,
+        role,
+        rank_id
+    } = req.body;
 
     let conn;
     try {
         conn = await db.getConnection();
+
         const [existingAccount] = await conn.query(
             'SELECT * FROM Account WHERE email = ?',
             [email]
         );
-        if ( existingAccount) {
+        if (existingAccount) {
             return res.status(400).json({ message: 'Email already taken' });
         }
+
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
 
@@ -57,7 +69,15 @@ exports.register = async (req, res) => {
             [email, salt, password_hash, role, user_id]
         );
 
+        if (rank_id) {
+            await conn.query(
+                'INSERT INTO ProfRank (professor_id, rank_id) VALUES (?, ?)',
+                [user_id, rank_id]
+            );
+        }
+
         res.status(201).json({ message: 'User registered successfully' });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error' });
@@ -65,6 +85,7 @@ exports.register = async (req, res) => {
         if (conn) conn.release();
     }
 };
+
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;

@@ -7,7 +7,7 @@ const userRoutes = require('./routes/userRoutes');
 const absenceRoutes = require('./routes/absenceRoutes');
 const periodRoutes = require('./routes/periodRoutes');
 const HolidayRoutes = require('./routes/holidayRoutes');
-
+const rankRoutes = require('./routes/rankRoutes');
 dotenv.config({ path: './config.env' });
 
 const app = express();
@@ -34,6 +34,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/absence', absenceRoutes);
 app.use('/api/period', periodRoutes);
 app.use('/api/holiday' ,HolidayRoutes);
+app.use('/api/rank' ,rankRoutes);
 
 
 

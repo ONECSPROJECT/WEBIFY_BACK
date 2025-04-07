@@ -57,7 +57,8 @@ class BaseModel {
             'Payment': 'payment_id',
             'AbsenceRecord': 'record_id',
             'PasswordReset': 'reset_id',
-            'Holidays': 'holiday_id'
+            'Holidays': 'holiday_id',
+            'Rank':'rank_id'
         };
         return primaryKeys[this.table] || 'id'; 
     }

@@ -34,7 +34,7 @@ class HolidayController {
             if (!id) {
                 return res.status(400).json({ message: "Holiday ID is required" });
             }
-            await Holiday.delete(id, "holiday_id"); // Your primary key
+            await Holiday.delete(id, "holiday_id"); 
             res.status(200).json({ message: "Holiday deleted successfully" });
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -43,8 +43,8 @@ class HolidayController {
 
     static async getAllHolidays(req, res) {
         try {
-            const [rows] = await Holiday.getAll();
-            res.status(200).json(rows);
+            const holidays = await Holiday.getAll();
+            res.status(200).json(holidays);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
