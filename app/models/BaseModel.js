@@ -27,7 +27,7 @@ class BaseModel {
         }
     
         const setClause = keys.map(key => `${key} = ?`).join(", ");
-        const idField = this.getPrimaryKey(); // Dynamically get primary key
+        const idField = this.getPrimaryKey(); 
         const query = `UPDATE ${this.table} SET ${setClause} WHERE ${idField} = ?`;
     
         values.push(id); // Add id to values array
@@ -56,9 +56,10 @@ class BaseModel {
             'Period': 'period_id',
             'Payment': 'payment_id',
             'AbsenceRecord': 'record_id',
-            'PasswordReset': 'reset_id'
+            'PasswordReset': 'reset_id',
+            'Holidays': 'holiday_id'
         };
-        return primaryKeys[this.table] || 'id'; // Default to 'id' if not found
+        return primaryKeys[this.table] || 'id'; 
     }
     
 
