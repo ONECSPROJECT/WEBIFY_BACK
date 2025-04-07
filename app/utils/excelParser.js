@@ -16,8 +16,16 @@ const rawData = XLSX.utils.sheet_to_json(firstSheet, { 'header': 1 });
 // console.log(rawData); // will generate an array of arrays
 
 // dumping teachers' names
-const teachersName = rawData.slice(1).map(row => row[0]);
+const teachersName = [...new Set(rawData.slice(1).map(row => row[0]))];
 const weekDays = rawData[0].slice(1).filter(_ => _);
+
+function getDurationMinutes(taw9eet) {
+    const splitTaw9eet = taw9eet.split('-');
+    const startTime = Number(splitTaw9eet[0].slice(0,-1));
+    const endTime = Number(splitTaw9eet[1].slice(0,-1));
+
+    return (endTime - startTime) * 60; // because times are in hours
+}
 
 function getSessionForDay(weekDay, teacherName) {
     // Structure of sessions
@@ -47,16 +55,27 @@ function getSessionForDay(weekDay, teacherName) {
     });
 
     return {
-        'last_name': teacherName,
-        'sessions': sessions
+        [weekDay]: sessions,
     }
 }
 
-function getDurationMinutes(taw9eet) {
-    const splitTaw9eet = taw9eet.split('-');
-    const startTime = Number(splitTaw9eet[0].slice(0,-1));
-    const endTime = Number(splitTaw9eet[1].slice(0,-1));
-
-    return (endTime - startTime) * 60; // because times are in hours
+// getting a week's worth of timetable means getting the WHOLE timetable for a given teacher
+function getSessionsForWeek(weekDays, teacherName) {
+    let result = [];
+    weekDays.forEach(weekDay => {
+        result.push(getSessionForDay(weekDay, teacherName));
+    });
+    return {
+        'last_name': teacherName,
+        'sessions': result,
+    };
 }
-console.log(getSessionForDay(weekDays[0], teachersName[0]));
+
+function getSessionsForAllTeachers(weekDays, teachersName) {
+    let fullTimeTable = [];
+    teachersName.forEach(teacherName => {
+       fullTimeTable.push(getSessionsForWeek(weekDays, teacherName));
+    })
+    return fullTimeTable;
+}
+console.dir(getSessionsForAllTeachers(weekDays, teachersName), { depth: 3 });
