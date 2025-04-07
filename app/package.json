@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "mariadb": "^3.4.0",
     "morgan": "^1.10.0",
-    "node-mailjet": "^6.0.8"
+    "node-mailjet": "^6.0.8",
+    "xlsx": "^0.18.5"
   }
 }
