@@ -1,4 +1,6 @@
 const BaseModel = require('../models/BaseModel');
+const db = require('../config/db');
+
 const User = new BaseModel('User');
 const jwt = require('jsonwebtoken');
 
@@ -44,25 +46,62 @@ class UserController {
 
     static async getAllUsers(req, res) {
         try {
-            const users = await User.getAll();
-            res.status(200).json(users);
+            const query = `
+                SELECT 
+                    User.user_id AS user_id, 
+                    User.first_name, 
+                    User.last_name, 
+                    User.state, 
+                    User.payment_information, 
+                    User.faculty, 
+                    Account.account_id, 
+                    Account.email,
+                    Account.role
+                FROM 
+                    User
+                INNER JOIN Account ON User.user_id = Account.user_id
+            `;
+            
+            const users = await db.query(query);
+                res.status(200).json(users);
+          
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     }
-
+    
+    
+    
     static async getUser(req, res) {
         try {
             const { id } = req.params;
             if (!id) {
                 return res.status(400).json({ message: "User ID is required" });
             }
-            const user = await User.getById(id);
-            res.status(200).json(user);
+            const query = `
+                SELECT 
+                    User.user_id AS user_id, 
+                    User.first_name, 
+                    User.last_name, 
+                    User.state, 
+                    User.payment_information, 
+                    User.faculty, 
+                    Account.account_id, 
+                    Account.email, 
+                    Account.role
+                FROM 
+                    User
+                INNER JOIN Account ON User.user_id = Account.user_id
+                WHERE User.user_id = ?
+            `;
+            const user = await db.query(query, [id]);
+            res.status(200).json(user);  
+
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     }
+    
 
     static async updateMe(req, res) {
         try {
