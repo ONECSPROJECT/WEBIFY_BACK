@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 
-router.post('/request-reset-password', passController.requestPassword);
+router.post('/request-reset-password', passController.requestPasswordReset);
 router.post('/reset-password', passController.resetPassword);
 
 // testing protect middleware
