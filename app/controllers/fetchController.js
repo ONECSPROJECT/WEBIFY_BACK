@@ -32,15 +32,39 @@ exports.getTeachers = async (req, res) => {
 exports.getTableTeachers = async (req, res) => {
     let conn;
     try {
-        conn =await db.getConnection()
-        const teachers=await conn.query(`select u.user_id, concat(u.first_name,' ', u.last_name) as full_name,a.email,u.faculty AS faculty,u.payment_information,u.state from user u inner join Account a on u.user_id=a.user_id`);
-        res.status(200).json(teachers)
-    } catch(error){
-        console.error(error)
+      conn = await db.getConnection();
+      const teachers = await conn.query(`
+        SELECT 
+          u.user_id,
+          CONCAT(u.first_name, ' ', u.last_name) AS full_name,
+          a.email,
+          u.faculty AS faculty,
+          u.payment_information,
+          u.state,
+          r.name AS current_rank
+        FROM user u
+        INNER JOIN Account a ON u.user_id = a.user_id
+        LEFT JOIN (
+          SELECT t1.teacherid, t1.rankid
+          FROM teacherrankhistory t1
+          INNER JOIN (
+            SELECT teacherid, MAX(startdate) AS max_start
+            FROM teacherrankhistory
+            GROUP BY teacherid
+          ) t2 ON t1.teacherid = t2.teacherid AND t1.startdate = t2.max_start
+        ) trh ON u.user_id = trh.teacherid
+        LEFT JOIN ranks r ON trh.rankid = r.rankid
+      `);
+      console.log(teachers)
+      res.status(200).json(teachers);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Failed to fetch teachers" });
     } finally {
-        if (conn) conn.release()
+      if (conn) conn.release();
     }
-}
+  };
+  
 
 
 
