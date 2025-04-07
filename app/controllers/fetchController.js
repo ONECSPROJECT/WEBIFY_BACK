@@ -33,7 +33,7 @@ exports.getTableTeachers = async (req, res) => {
     let conn;
     try {
         conn =await db.getConnection()
-        const teachers=await conn.query(`select u.user_id, concat(u.first_name,' ', u.last_name) as full_name,a.email,u.faculty AS grade,u.payment_information,u.state from user u inner join Account a on u.user_id=a.user_id`);
+        const teachers=await conn.query(`select u.user_id, concat(u.first_name,' ', u.last_name) as full_name,a.email,u.faculty AS faculty,u.payment_information,u.state from user u inner join Account a on u.user_id=a.user_id`);
         res.status(200).json(teachers)
     } catch(error){
         console.error(error)

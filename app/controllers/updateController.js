@@ -17,3 +17,20 @@ exports.markAbsence=async(req,res)=>{
         console.log(error)
     }
 }
+
+
+exports.markEnddate=async(req,res)=>{
+    const{enddate}=req.query;
+    try{
+        let conn=await db.getConnection()
+        let historyid= await conn.query(`select historyid from teacherrankhistory where enddate is null`)
+        console.log("hitory is", historyid)
+        await conn.query(`update teacherrankhistory set enddate=? where historyid=?`,[enddate,historyid[0].historyid])
+        res.status(200).json("nice")
+        conn.release()
+    }
+    catch(error)
+    {
+        console.log(error)
+    }
+}

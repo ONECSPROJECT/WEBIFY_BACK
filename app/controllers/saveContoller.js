@@ -126,3 +126,21 @@ exports.saveVacations=async(req,res)=>{
         console.log(error)
     }
 }
+
+
+exports.saveRank=async(req,res)=>{
+    const{teacher,grade,date}=req.body
+    try{
+        let conn=await db.getConnection()
+        const periodId=await conn.query(`select periodid from teacherrankhistory where  enddate=? `,[date])
+        console.log("period id is",periodId[0])
+        console.log(periodId[0])
+        console.log("grade to be inserted",grade)
+        const addToRankHistory=await conn.query(`insert into teacherrankhistory(teacherid,rankid,startdate,enddate,periodid) values(?,?,?,?,?)`,[teacher, grade,date,null,periodId[0].periodid])
+        res.status(200).json("nice")
+        conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}

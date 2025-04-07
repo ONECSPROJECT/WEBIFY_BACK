@@ -17,7 +17,7 @@ router.post('/save-semesters',saveController.saveSemesters)
 router.post('/save-schedule',saveController.saveSched)
 router.post('/save-periods',saveController.savePeriods)
 router.post('/save-vacation',saveController.saveVacations)
-
+router.post('/update-rank',saveController.saveRank)
 
 router.get('/fetch-teachers',fetchController.getTeachers)
 router.get('/fetch-promotions',fetchController.getPromotions)
@@ -36,4 +36,5 @@ router.get('/fetch-ranks',fetchController.getRanks)
 router.delete('/delete-teacher',deleteController.deleteTeacher)
 
 router.put('/mark-absence',updateController.markAbsence)
+router.put('/mark-enddate',updateController.markEnddate)
 module.exports = router;
