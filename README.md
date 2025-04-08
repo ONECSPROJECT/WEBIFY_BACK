@@ -78,3 +78,24 @@ nodemon index.js
 
 - Interactive docs found at `/api-docs`
 - Read more about SwaggerUI [here](https://swagger.io/tools/swagger-ui/)
+
+---
+
+## Bonus
+
+To test the sending of a file (a schedule), try this script:
+```python
+#!/usr/bin/env python3
+
+import requests
+
+# URL for the API endpoint
+url = 'http://localhost:3000/api/schedule/upload-schedule'
+
+# Open the file in binary mode and prepare the payload
+with open('file.xlsx', 'rb') as file:
+    files = {'file': ('file.xlsx', file, 'text/plain')}
+
+    # Send the POST request with the file
+    requests.post(url, files=files)
+```
