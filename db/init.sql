@@ -3,8 +3,8 @@ USE suphours;
 
 CREATE TABLE User (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
-    first_name CHAR(255) NOT NULL,
-    last_name CHAR(255) NOT NULL,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255) NOT NULL,
     state CHAR(50),
     payment_information CHAR(255),
     faculty CHAR(255)
@@ -27,13 +27,23 @@ CREATE TABLE SessionType (
     hierarchy_level INT NOT NULL
 );
 
+CREATE TABLE Promo (
+    promo_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255) NOT NULL
+);
+
+CREATE TABLE Speciality (
+    speciality_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255) NOT NULL
+);
+
 CREATE TABLE Schedule (
     session_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
     promo_id INT,
     speciality_id INT,
-    day_of_week INT NOT NULL,
-    start_time INT NOT NULL,
+    day_of_week CHAR(50) NOT NULL,
+    start_time CHAR(10) NOT NULL,
     duration_minutes INT NOT NULL,
     session_type INT,
     is_extra BOOLEAN NOT NULL,
@@ -42,17 +52,6 @@ CREATE TABLE Schedule (
     FOREIGN KEY (speciality_id) REFERENCES Speciality(speciality_id) ON DELETE CASCADE,
     FOREIGN KEY (session_type) REFERENCES SessionType(session_type_id) ON DELETE SET NULL
 );
-
-CREATE TABLE Promo (
-    promo_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255) NOT NULL,
-);
-
-CREATE TABLE Speciality (
-    speciality_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255) NOT NULL,
-);
-
 CREATE TABLE ProfRank (
     rank_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,

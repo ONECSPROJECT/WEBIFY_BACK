@@ -25,10 +25,25 @@ function initialParsing(filename) {
 
 function getDurationMinutes(taw9eet) {
     const splitTaw9eet = taw9eet.split('-');
-    const startTime = Number(splitTaw9eet[0].slice(0,-1));
-    const endTime = Number(splitTaw9eet[1].slice(0,-1));
 
-    return (endTime - startTime) * 60; // because times are in hours
+    const convertToMinutes = (time) => {
+        // Check if the time contains a ':' (hour:minute format)
+        if (time.includes(':')) {
+            const [hours, minutes] = time.slice(0, -1).split(':').map(Number); // Remove 'h' and split
+            return hours * 60 + minutes;
+        } else if (time.includes('h')) {
+            const [hours, minutes] = time.split('h').map(Number);
+            return hours * 60 + minutes;
+        } else {
+            // If no ':' in the time, it's in 'hh' format
+            return Number(time.slice(0, -1)) * 60; // Remove 'h' and convert to minutes
+        }
+    };
+
+    const startTime = convertToMinutes(splitTaw9eet[0]);
+    const endTime = convertToMinutes(splitTaw9eet[1]);
+
+    return endTime - startTime;
 }
 
 function getSessionForDay(weekDay, teacherName) {
@@ -111,5 +126,6 @@ function getSessionsForAllTeachers(weekDays, teachersName) {
  *   ...
  * ]
  */
-// module.exports = getSessionsForAllTeachers(weekDays, teachersName);
+// const [weekdays, teachersName] = initialParsing('input.xlsx');
+// console.dir(getSessionsForAllTeachers(weekdays, teachersName), { depth: 5 });
 module.exports = { getSessionsForAllTeachers, initialParsing };
