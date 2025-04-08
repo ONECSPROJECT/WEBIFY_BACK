@@ -1,23 +1,27 @@
 #!/usr/bin/env node
 
 var XLSX = require('xlsx');
+var rawData = null;
 
-filename = './input.xlsx';
-var workbook = XLSX.readFile(filename);
+function initialParsing(filename) {
+    var workbook = XLSX.readFile(filename);
 
-// playing around with the tool to figure it out...
-const sheetNames = workbook.SheetNames;
-// console.log(sheetNames); // [ 'Affectation' ]
+    // playing around with the tool to figure it out...
+    const sheetNames = workbook.SheetNames;
+    // console.log(sheetNames); // [ 'Affectation' ]
 
-const firstSheet = workbook.Sheets[sheetNames[0]];
-// console.log(firstSheet); // The Sheets property of the workbook object5 is an object whose keys are sheet names and whose values are sheet objects
+    const firstSheet = workbook.Sheets[sheetNames[0]];
+    // console.log(firstSheet); // The Sheets property of the workbook object5 is an object whose keys are sheet names and whose values are sheet objects
 
-const rawData = XLSX.utils.sheet_to_json(firstSheet, { 'header': 1 });
-// console.log(rawData); // will generate an array of arrays
+    rawData = XLSX.utils.sheet_to_json(firstSheet, { 'header': 1 });
+    // console.log(rawData); // will generate an array of arrays
 
-// dumping teachers' names
-const teachersName = [...new Set(rawData.slice(1).map(row => row[0]))];
-const weekDays = rawData[0].slice(1).filter(_ => _);
+    // dumping teachers' names
+    const teachersName = [...new Set(rawData.slice(1).map(row => row[0]))];
+    const weekDays = rawData[0].slice(1).filter(_ => _);
+
+    return [weekDays, teachersName];
+}
 
 function getDurationMinutes(taw9eet) {
     const splitTaw9eet = taw9eet.split('-');
@@ -107,4 +111,5 @@ function getSessionsForAllTeachers(weekDays, teachersName) {
  *   ...
  * ]
  */
-module.exports = getSessionsForAllTeachers(weekDays, teachersName);
+// module.exports = getSessionsForAllTeachers(weekDays, teachersName);
+module.exports = { getSessionsForAllTeachers, initialParsing };
