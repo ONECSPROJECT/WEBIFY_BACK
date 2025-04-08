@@ -22,69 +22,45 @@ CREATE TABLE Account (
 );
 
 
+create table DayOfWeek ( dayid int primary key auto_increment, name char(255));
+create table holidays (holidayid int primary key auto_increment, startdate date,enddate date);
+create table promotion (promoid int primary key auto_increment, name char(255) not null);
+create table ranks (rankid int primary key auto_increment, name char(255),course_payment int, tut_payment int, lab_payment int);
+create table semesters (semesterid int primary key auto_increment, name char(255), startdate date, enddate date);
+create table periods (periodid int primary key auto_increment, name char(255),startdate date, enddate date, semesterid int, foreign key (semesterid) references semesters(semesterid));
+create table sessionType (session_type_id int primary key auto_increment, name char(255), conversion_factor decimal(10,2),hierarchy_level int);
+create table speciality(specialityid int primary key auto_increment, name char(255), promoid int, FOREIGN key (promoid) references promotion(promoid));
+create table teacherrankhistory(historyid int primary KEY auto_increment, teacherID int, rankid int,startdate date, enddate date, periodid int, foreign key (teacherID) references user(user_id), foreign key (rankid) references ranks(rankid), foreign key(periodid) references periods(periodid));
+create table vacation(vacationid int primary key auto_increment, teacherID int,  startdate date, enddate date,semesterid int, foreign key (teacherID) references user(user_id), foreign key (semesterid) references semesters(semesterid));
+
+insert into ranks(name, course_payment, tut_payment, lab_payment) values ("MCA",500,400,300);
+insert into ranks(name, course_payment, tut_payment, lab_payment) values ("MCB",700,500,400);
+insert into ranks(name, course_payment, tut_payment, lab_payment) values ("PRF",900,800,600);
+
+
+insert into promotion(name) values ('1CPI');
+insert into promotion(name) values ('2CPI');
+insert into promotion(name) values ('1CS');
+insert into promotion(name) values ('2CS');
+insert into promotion(name) values ('3CS');
+insert into sessionType(name,conversion_factor,hierarchy_level) values ('Course',1.5,1);
+insert into sessionType(name,conversion_factor,hierarchy_level) values ('TD',1,2);
+insert into sessionType(name,conversion_factor,hierarchy_level) values ('TP',0.75,3);
+insert into speciality(name, promoID) values ('ISI',4);
+insert into speciality(name, promoID) values ('SIW',4);
+insert into speciality(name, promoID) values ('IASD',4);
+insert into speciality(name, promoID) values ('ISI',5);
+insert into speciality(name, promoID) values ('SIW',5);
+insert into speciality(name, promoID) values ('IASD',5);
+
+
 SET @user_id = LAST_INSERT_ID();
 
 
 
-CREATE TABLE SessionType (
-    session_type_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255) NOT NULL,
-    conversion_factor INT NOT NULL,
-    hierarchy_level INT NOT NULL
-);
 
-CREATE TABLE Schedule (
-    session_id INT PRIMARY KEY AUTO_INCREMENT,
-    professor_id INT,
-    day_of_week INT NOT NULL,
-    start_time INT NOT NULL,
-    duration_minutes INT NOT NULL,
-    session_type INT,
-    is_extra BOOLEAN NOT NULL,
-    FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (session_type) REFERENCES SessionType(session_type_id) ON DELETE SET NULL
-);
 
-CREATE TABLE ProfRank (
-    rank_id INT PRIMARY KEY AUTO_INCREMENT,
-    professor_id INT,
-    name CHAR(255) NOT NULL,
-    pay_rate_course INT NOT NULL,
-    pay_rate_lab INT NOT NULL,
-    FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE
-);  
 
-CREATE TABLE Period (
-    period_id INT PRIMARY KEY AUTO_INCREMENT,
-    professor_id INT,
-    start_date INT NOT NULL,
-    end_date INT NOT NULL,
-    rank_id INT,
-    FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (rank_id) REFERENCES ProfRank(rank_id)
-);
-
-CREATE TABLE Payment (
-    payment_id INT PRIMARY KEY AUTO_INCREMENT,
-    professor_id INT,
-    from_date INT NOT NULL,
-    to_date INT NOT NULL,
-    total_hours INT NOT NULL,
-    calculated_extra_hours INT NOT NULL,
-    amount INT NOT NULL,
-    processed_date INT NOT NULL,
-    FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE
-);
-
-CREATE TABLE AbsenceRecord (
-    record_id INT PRIMARY KEY AUTO_INCREMENT,
-    professor_id INT,
-    period_id INT,
-    date INT NOT NULL,
-    missed_hours INT NOT NULL,
-    FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (period_id) REFERENCES Period(period_id) ON DELETE CASCADE
-);
 
 
 -- below is added for password reset functionality. Should figure out a way to easily migrate
@@ -109,39 +85,24 @@ CREATE TABLE PasswordReset (
 
 
 
-Create table Promotion (promoID int primary key auto_increment, name char(255) not null);
-create table section (sectionID  int primary key auto_increment, promoID int not null, name char(255) not null, foreign key (promoID) references Promotion(promoID));
-CREATE TABLE `Group` (
-    groupID INT PRIMARY KEY AUTO_INCREMENT,
-    sectionID INT NOT NULL,
-    name CHAR(255) NOT NULL,
-    FOREIGN KEY (sectionID) REFERENCES Section(sectionID)
-);
 
-CREATE TABLE DayOfWeek (
-    dayID INT PRIMARY KEY AUTO_INCREMENT,
-    name ENUM('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday') NOT NULL
-);
-CREATE TABLE Salle (
-    salleID INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255) NOT NULL
-);
-CREATE TABLE GlobalTimeTable (
-    timetableID INT PRIMARY KEY AUTO_INCREMENT,
+
+CREATE TABLE GlobalTimeTableplanb (
+    globaltimetableID INT PRIMARY KEY AUTO_INCREMENT,
     promoID INT NOT NULL,
-    sectionID INT NULL,
-    groupID INT NULL,  
+    specialityid int,
     teacherID INT NOT NULL,
     dayID INT NOT NULL,
     startTime TIME NOT NULL,
-    duration INT NOT NULL, -- Duration in minutes
-    sessionType ENUM('Course', 'Lab Work', 'Tutorial') NOT NULL,
-    salleID INT NOT NULL,
+    duration INT NOT NULL,
+    sessiontypeid int,
+    isextra boolean,
+    presence boolean,
+    period int,
     FOREIGN KEY (promoID) REFERENCES Promotion(promoID),
-    FOREIGN KEY (sectionID) REFERENCES Section(sectionID),
-    FOREIGN KEY (groupID) REFERENCES `Group`(groupID),
     FOREIGN KEY (teacherID) REFERENCES user(user_id),
     FOREIGN KEY (dayID) REFERENCES DayOfWeek(dayID),
-    FOREIGN KEY (salleID) REFERENCES Salle(salleID)
+    foreign key (specialityid) references speciality(specialityid),
+    foreign key (sessiontypeid) references sessionType(session_type_id)
 );
 
