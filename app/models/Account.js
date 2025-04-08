@@ -6,7 +6,7 @@ class Account {
             'SELECT * FROM Account WHERE email = ?',
             [email]
         )
-        return rows[0] || null; // could have multiple records
+        return account || null; // could have multiple records
     }
 
     static async updatePassword(accountId, hashedPassword, salt) {
