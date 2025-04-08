@@ -78,4 +78,33 @@ function getSessionsForAllTeachers(weekDays, teachersName) {
     })
     return fullTimeTable;
 }
-console.dir(getSessionsForAllTeachers(weekDays, teachersName), { depth: 3 });
+
+
+/**
+ * Example structure:
+ * [
+ *   {
+ *     last_name: "Mr. Smith",            // Teacher's name
+ *     sessions: [                        // Array of sessions for each weekday
+ *       {
+ *         Monday: [                      // Each key is a weekday with an array of session objects
+ *           {
+ *             type: "TD",               // Session type (e.g., TD, TP, C)
+ *             promo: "1CS",             // Class/promotion
+ *             speciality: "SIW",        // Speciality or field
+ *             start_time: "08",         // Start time in hours (string, e.g., "08" for 08h00)
+ *             duration_minutes: 120     // Duration of the session in minutes
+ *           },
+ *           ...
+ *         ]
+ *       },
+ *       {
+ *         Tuesday: [ ... ]
+ *       },
+ *       ...
+ *     ]
+ *   },
+ *   ...
+ * ]
+ */
+module.exports = getSessionsForAllTeachers(weekDays, teachersName);

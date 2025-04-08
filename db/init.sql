@@ -30,13 +30,27 @@ CREATE TABLE SessionType (
 CREATE TABLE Schedule (
     session_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
+    promo_id INT,
+    speciality_id INT,
     day_of_week INT NOT NULL,
     start_time INT NOT NULL,
     duration_minutes INT NOT NULL,
     session_type INT,
     is_extra BOOLEAN NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (promo_id) REFERENCES Promo(promo_id) ON DELETE CASCADE,
+    FOREIGN KEY (speciality_id) REFERENCES Speciality(speciality_id) ON DELETE CASCADE,
     FOREIGN KEY (session_type) REFERENCES SessionType(session_type_id) ON DELETE SET NULL
+);
+
+CREATE TABLE Promo (
+    promo_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255) NOT NULL,
+);
+
+CREATE TABLE Speciality (
+    speciality_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255) NOT NULL,
 );
 
 CREATE TABLE ProfRank (
