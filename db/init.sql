@@ -106,3 +106,4 @@ CREATE TABLE GlobalTimeTableplanb (
     foreign key (sessiontypeid) references sessionType(session_type_id)
 );
 
+create table payment (paymentid int primary key auto_increment, teacherID int, suphourcourse int, suphourtut int, suphourlab int, totalpayment int, status boolean, periodid int, rankid int, foreign key(teacherID) references user(user_id), foreign key(periodid) references periods(periodid),foreign key (rankid) references ranks (rankid) );

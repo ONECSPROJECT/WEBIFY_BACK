@@ -32,9 +32,13 @@ router.get('/fetch-holiday',fetchController.getHolidays)
 router.get('/get-selective-teachers',fetchController.getSelectiveTeachers)
 router.get('/fetch-extra-session',fetchController.getExtraSessions)
 router.get('/fetch-ranks',fetchController.getRanks)
-
+router.get('/get-period',fetchController.getPeriod)
+router.get('/get-teachers',fetchController.getTeacherForPaymentPage)
+router.get('/get-weekend')
 router.delete('/delete-teacher',deleteController.deleteTeacher)
 
 router.put('/mark-absence',updateController.markAbsence)
 router.put('/mark-enddate',updateController.markEnddate)
+router.put('/add-suphoursBySession',updateController.addSupHours)
+router.put('/reset-presence',updateController.resetPresence)
 module.exports = router;

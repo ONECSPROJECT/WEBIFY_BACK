@@ -50,6 +50,7 @@ exports.register = async (req, res) => {
         const teacherId=await conn.query(`select user_id from user where last_name=? and first_name=?`,[last_name,first_name])
         console.log(teacherId[0].user_id)
         const addToRankHistory=await conn.query(`insert into teacherrankhistory(teacherid,rankid,startdate,enddate,periodid) values(?,?,?,?,?)`,[teacherId[0].user_id, grade,date,null,periodId[0].periodid])
+        const addtoPayment=await conn.query(`insert into payment(teacherid,suphourcourse,suphourtut,suphourlab,totalpayment,status,periodid,rankid) values (?,?,?,?,?,?,?,?) `,[teacherId[0].user_id,0,0,0,0,0,periodId[0].periodid,grade])
         console.log("teacher added")
         const user_id = userResult.insertId;
 

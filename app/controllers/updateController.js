@@ -34,3 +34,46 @@ exports.markEnddate=async(req,res)=>{
         console.log(error)
     }
 }
+
+
+exports.addSupHours=async(req,res)=>{
+    const {teachers,date}=req.query
+    try{
+        let conn=await db.getConnection()
+        let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
+        let pid=periodid[0].periodid
+        for(let user_id  of JSON.parse(teachers)){
+            let durations=await conn.query(`
+                select 
+                    sum(case when type=1 then duration else 0 end) as suphourcourse,
+                    sum(case when type=2 then duration else 0 end) as suphourtut,
+                    sum(case when type=3 then duration else 0 end) as suphourlab
+                from globaltimetableplanb
+                where teacherid=? and isExtra=1
+            `,[user_id])
+            let d=durations[0]
+            await conn.query(`update payment set suphourcourse=?, suphourtut=?, suphourlab=? where teacherid=? and periodid=?`,
+            [d.suphourcourse||0,d.suphourtut||0,d.suphourlab||0,user_id,pid])
+        }
+        res.status(200).json({message:"sup hours updated"})
+        conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+
+exports.resetPresence=async(req,res)=>{
+    const{date}=req.query
+    try{
+        let conn=await db.getConnection()
+        let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
+        await conn.query(`update globaltimetableplanb set presence=1 where teacher_id>=1`)
+        res.status(200).json("nice")
+        conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}

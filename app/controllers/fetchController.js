@@ -167,12 +167,15 @@ exports.fetchAdminEmail=async(req,res)=>{
 }
 
 exports.getSched=async (req,res) =>{
+    const {date}=req.query;
     try{
       const conn=await db.getConnection()
+      const periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date,date])
+      console.log("period is ",periodid[0])
       const scheds =await conn.query(`
-        select g.presence, g.starttime, g.duration, g.period, d.name as day_of_week, concat(u.last_name, ' ', u.first_name) as teacher, s.name as session_type, spec.name as speciality, p.name as promotion from globaltimetableplanb g left join user u on g.teacherid = u.user_id left join sessiontype s on g.sessiontypeid = s.session_type_id left join speciality spec on g.specialityid = spec.specialityid left join promotion p on g.promoid = p.promoid left join dayofweek d on g.dayid = d.dayid where g.isextra = 1`)
+        select g.presence, g.starttime, g.duration, g.period, d.name as day_of_week, concat(u.last_name, ' ', u.first_name) as teacher, s.name as session_type, spec.name as speciality, p.name as promotion from globaltimetableplanb g left join user u on g.teacherid = u.user_id left join sessiontype s on g.sessiontypeid = s.session_type_id left join speciality spec on g.specialityid = spec.specialityid left join promotion p on g.promoid = p.promoid left join dayofweek d on g.dayid = d.dayid where g.isextra = 1 and g.period=?`,[periodid[0].periodid])
   
-      res.json(scheds)
+      res.json({scheds,periodid:periodid[0].periodid})
       console.log(scheds)
     } catch (error){
       console.error("Error fetching schedules:",error)
@@ -189,6 +192,7 @@ exports.getHolidays=async(req,res)=>{
     try{
         let conn=await db.getConnection()
         let holidayApproval=await conn.query(`select holidayid from holidays where ? >startdate and ?<enddate; `,[date,date])
+        console.log(holidayApproval)
         res.status(200).json(holidayApproval[0]||null)
         conn.release()
     }
@@ -254,3 +258,55 @@ exports.getExtraSessions=async(req,res)=>{
         console.log(error)
     }
 }
+
+
+exports.getPeriod=async(req,res)=>{
+    const{date}=req.query;
+    try{
+        let conn=await db.getConnection()
+        let PeriodId=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date,date])
+        console.log("period id is ",PeriodId[0].periodid)
+
+        res.status(200).json(PeriodId[0].periodid)
+        conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+exports.getWeekend=async(req,res)=>{
+    const {day}=req.query;
+    try{
+        let conn=await db.getConnection()
+        let days=conn.query(`select dayid from dayofweek where name =?`,[day])
+        if(days.length===0){
+            res.status(200).json("Weekend")
+        }
+      else{
+        res.status(200).json("not a weekend")
+    }
+      conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+exports.getTeacherForPaymentPage = async (req, res) => {
+    const {date}=req.query
+    try {
+        let conn =await db.getConnection()
+        let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
+    
+        let teachers = await conn.query(`select p.teacherid, u.full_name as teacher, p.supHourCourse, p.supHourTut, p.suphourlab, p.totalPayment, p.status from payment p join user u on p.teacherid = u.user_id where p.periodid=? `, [periodid[0].periodid])
+        res.status(200).json({teachers,period:periodid[0].periodid})
+        console.log(teachers)
+        conn.release()
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: "server error" })
+    }
+}
+
+
