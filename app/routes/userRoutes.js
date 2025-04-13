@@ -34,7 +34,10 @@ router.get('/fetch-extra-session',fetchController.getExtraSessions)
 router.get('/fetch-ranks',fetchController.getRanks)
 router.get('/get-period',fetchController.getPeriod)
 router.get('/get-teachers',fetchController.getTeacherForPaymentPage)
-router.get('/get-weekend')
+router.get('/get-weekend',fetchController.getWeekend)
+
+
+
 router.delete('/delete-teacher',deleteController.deleteTeacher)
 
 router.put('/mark-absence',updateController.markAbsence)

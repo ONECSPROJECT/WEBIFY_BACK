@@ -42,12 +42,13 @@ exports.addSupHours=async(req,res)=>{
         let conn=await db.getConnection()
         let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
         let pid=periodid[0].periodid
-        for(let user_id  of JSON.parse(teachers)){
+        for(let teacher  of teachers){
+            let user_id=teacher.user_id
             let durations=await conn.query(`
                 select 
-                    sum(case when type=1 then duration else 0 end) as suphourcourse,
-                    sum(case when type=2 then duration else 0 end) as suphourtut,
-                    sum(case when type=3 then duration else 0 end) as suphourlab
+                    sum(case when sessiontypeid=1 then duration else 0 end) as suphourcourse,
+                    sum(case when sessiontypeid=2 then duration else 0 end) as suphourtut,
+                    sum(case when sessiontypeid=3 then duration else 0 end) as suphourlab
                 from globaltimetableplanb
                 where teacherid=? and isExtra=1
             `,[user_id])
@@ -69,7 +70,7 @@ exports.resetPresence=async(req,res)=>{
     try{
         let conn=await db.getConnection()
         let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
-        await conn.query(`update globaltimetableplanb set presence=1 where teacher_id>=1`)
+        await conn.query(`update globaltimetableplanb set presence=1 where teacherid>=1`)
         res.status(200).json("nice")
         conn.release()
     }

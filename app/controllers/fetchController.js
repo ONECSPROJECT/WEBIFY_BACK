@@ -212,6 +212,8 @@ exports.getSelectiveTeachers=async (req,res)=>{
         console.log("length",dayid.length)
         if (dayid.length===0){
             res.status(200).json("Today is a weekend")
+            conn.release()
+            return;
         }
         let selectiveTeachers=await conn.query(`select distinct teacherid from globaltimetableplanb where isextra=1 and dayid=? `,[dayid[0].dayid])
         console.log("selective teachers:",selectiveTeachers)
@@ -279,7 +281,8 @@ exports.getWeekend=async(req,res)=>{
     const {day}=req.query;
     try{
         let conn=await db.getConnection()
-        let days=conn.query(`select dayid from dayofweek where name =?`,[day])
+        let days=await conn.query(`select dayid from dayofweek where name =?`,[day])
+        console.log("days length ",days)
         if(days.length===0){
             res.status(200).json("Weekend")
         }

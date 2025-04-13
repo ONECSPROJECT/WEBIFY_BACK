@@ -3,7 +3,6 @@ const morgan = require('morgan');
 const cors = require('cors');
 const path = require('node:path');
 const userRoutes = require('./routes/userRoutes');
-
 require('dotenv').config({ path: './.env' });
 
 
@@ -28,7 +27,6 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/user', userRoutes);
-
 // Root
 app.get('/', (req, res) => {
     res.send('Hello, World!');
