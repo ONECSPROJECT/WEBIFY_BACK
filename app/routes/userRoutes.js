@@ -38,8 +38,7 @@ router.get('/get-weekend',fetchController.getWeekend)
 
 
 
-router.delete('/delete-teacher',deleteController.deleteTeacher)
-
+router.put('/mask-teacher',updateController.maskTeacher)
 router.put('/mark-absence',updateController.markAbsence)
 router.put('/mark-enddate',updateController.markEnddate)
 router.put('/add-suphoursBySession',updateController.addSupHours)
