@@ -1,3 +1,4 @@
+const e = require('express');
 const db = require('../config/db');
 
 
@@ -71,6 +72,20 @@ exports.resetPresence=async(req,res)=>{
         let conn=await db.getConnection()
         let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
         await conn.query(`update globaltimetableplanb set presence=1 where teacherid>=1`)
+        res.status(200).json("nice")
+        conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+
+exports.maskTeacher=async(req,res)=>{
+    const {user_id}=req.query
+    try{
+        let conn=await db.getConnection()
+        await conn.query(`update user set masked =1 where user_id=?`,[user_id])
         res.status(200).json("nice")
         conn.release()
     }
