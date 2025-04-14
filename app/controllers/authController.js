@@ -33,7 +33,7 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 exports.register = async (req, res) => {
-    const { first_name, last_name, state, payment_information, grade,faculty, email, password, role,date } = req.body;
+    const { first_name, last_name, state, payment_information, grade,faculty, email, password, role,date,masked } = req.body;
     console.log("register infos:",req.body)
     let conn;
     try {
@@ -41,9 +41,10 @@ exports.register = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
         console.log("password hashed")
+        let full_name=`${first_name} ${last_name}`
         const userResult = await conn.query(
-            'INSERT INTO User (first_name, last_name, state, payment_information, faculty) VALUES (?, ?, ?, ?, ?)',
-            [first_name, last_name, state, payment_information, faculty]
+            'INSERT INTO User (first_name, last_name, state, payment_information, faculty, full_name, masked) VALUES (?, ?, ?, ?, ?,?,?)',
+            [first_name, last_name, state, payment_information, faculty,full_name,masked]
         );
         const periodId=await conn.query(`select periodid from periods where ?>=startdate and ?<=enddate `,[date,date])
         console.log(periodId[0].periodid)
