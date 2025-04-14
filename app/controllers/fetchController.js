@@ -41,6 +41,7 @@ exports.getTableTeachers = async (req, res) => {
           u.faculty AS faculty,
           u.payment_information,
           u.state,
+          u.masked,
           r.name AS current_rank
         FROM user u
         INNER JOIN Account a ON u.user_id = a.user_id
@@ -54,6 +55,7 @@ exports.getTableTeachers = async (req, res) => {
           ) t2 ON t1.teacherid = t2.teacherid AND t1.startdate = t2.max_start
         ) trh ON u.user_id = trh.teacherid
         LEFT JOIN ranks r ON trh.rankid = r.rankid
+        where masked=0
       `);
       console.log(teachers)
       res.status(200).json(teachers);
