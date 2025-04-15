@@ -109,3 +109,9 @@ CREATE TABLE GlobalTimeTableplanb (
 create table payment (paymentid int primary key auto_increment, teacherID int, suphourcourse int, suphourtut int, suphourlab int, totalpayment int, status boolean, periodid int, rankid int, foreign key(teacherID) references user(user_id), foreign key(periodid) references periods(periodid),foreign key (rankid) references ranks (rankid) );
 alter table user add column full_name char(255)
 alter table user add column masked boolean; 
+alter table ranks add column payment int;
+update table ranks set payment=500 where rankid=1;
+update  ranks set payment=700 where rankid=2;
+update  ranks set payment=900 where rankid=3;
+alter table payment add column suphour int;
+update payment set suphour=0 where paymentid>=1;

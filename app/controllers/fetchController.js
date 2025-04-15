@@ -18,7 +18,7 @@ exports.getTeachers = async (req, res) => {
     try {
         conn = await db.getConnection();
         const teachers = await conn.query(
-            'SELECT user_id, first_name, last_name FROM user',
+            'SELECT user_id, first_name, last_name FROM user where masked=0',
         );
         res.status(200).json(teachers);
     } catch (error) {
@@ -304,7 +304,7 @@ exports.getTeacherForPaymentPage = async (req, res) => {
         let conn =await db.getConnection()
         let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
     
-        let teachers = await conn.query(`select p.teacherid, u.full_name as teacher, p.supHourCourse, p.supHourTut, p.suphourlab, p.totalPayment, p.status from payment p join user u on p.teacherid = u.user_id where p.periodid=? `, [periodid[0].periodid])
+        let teachers = await conn.query(`select p.paymentid, p.teacherid, u.full_name as teacher, p.suphour, p.totalPayment, p.status from payment p join user u on p.teacherid = u.user_id where p.periodid=? and u.masked=0 `, [periodid[0].periodid])
         res.status(200).json({teachers,period:periodid[0].periodid})
         console.log(teachers)
         conn.release()

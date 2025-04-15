@@ -54,8 +54,8 @@ exports.addSupHours=async(req,res)=>{
                 where teacherid=? and isExtra=1
             `,[user_id])
             let d=durations[0]
-            await conn.query(`update payment set suphourcourse=?, suphourtut=?, suphourlab=? where teacherid=? and periodid=?`,
-            [d.suphourcourse||0,d.suphourtut||0,d.suphourlab||0,user_id,pid])
+            await conn.query(`update payment set suphour suphourcourse=?, suphourtut=?, suphourlab=? where teacherid=? and periodid=?`,
+            [(d.suphourcourse+d.suphourlab+d.suphourtut)||0,d.suphourcourse||0,d.suphourtut||0,d.suphourlab||0,user_id,pid])
         }
         res.status(200).json({message:"sup hours updated"})
         conn.release()
@@ -88,6 +88,19 @@ exports.maskTeacher=async(req,res)=>{
         await conn.query(`update user set masked =1 where user_id=?`,[user_id])
         res.status(200).json("nice")
         conn.release()
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+
+exports.markAsPaid=async(req,res)=>{
+    const {id}=req.query
+    try{
+        let conn=await db.getConnection()
+        await conn.query(`update payment set status =1 where paymentid=?`,[id])
+        res.status(200).json("nice")
     }
     catch(error){
         console.log(error)

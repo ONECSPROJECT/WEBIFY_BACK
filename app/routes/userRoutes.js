@@ -6,6 +6,7 @@ const saveController=require('../controllers/saveContoller')
 const deleteController=require('../controllers/deleteController')
 const updateController=require('../controllers/updateController')
 const router = express.Router();
+const exportController = require('../controllers/exportController');
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
@@ -35,9 +36,10 @@ router.get('/fetch-ranks',fetchController.getRanks)
 router.get('/get-period',fetchController.getPeriod)
 router.get('/get-teachers',fetchController.getTeacherForPaymentPage)
 router.get('/get-weekend',fetchController.getWeekend)
+router.get('/export/pdf', exportController.handleExport)
 
 
-
+router.put('/mark-as-paid',updateController.markAsPaid)
 router.put('/mask-teacher',updateController.maskTeacher)
 router.put('/mark-absence',updateController.markAbsence)
 router.put('/mark-enddate',updateController.markEnddate)
