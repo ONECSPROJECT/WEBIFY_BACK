@@ -212,8 +212,8 @@ exports.getSelectiveTeachers=async (req,res)=>{
         let dayid=await conn.query(`select dayid from dayofweek where name =?`,[day])
         console.log("day id is, ",dayid[0])
         console.log("length",dayid.length)
-        if (dayid.length===0){
-            res.status(200).json("Today is a weekend")
+        if (dayid[0].dayid===6){
+            res.status(200).json("Friday")
             conn.release()
             return;
         }
@@ -287,6 +287,9 @@ exports.getWeekend=async(req,res)=>{
         console.log("days length ",days)
         if(days.length===0){
             res.status(200).json("Weekend")
+        }
+        else if (days[0].dayid===6){
+            res.status(200).json("Friday")
         }
       else{
         res.status(200).json("not a weekend")
