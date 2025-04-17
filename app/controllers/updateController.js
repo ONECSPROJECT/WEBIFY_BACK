@@ -38,11 +38,12 @@ exports.markEnddate=async(req,res)=>{
 
 
 exports.addSupHours=async(req,res)=>{
-    const {teachers,date}=req.query
+    const {teachers,date}=req.body
     try{
         let conn=await db.getConnection()
         let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
         let pid=periodid[0].periodid
+        console.log("teacher to add sup hours:",teachers)
         for(let teacher  of teachers){
             let user_id=teacher.user_id
             let durations=await conn.query(`
@@ -54,7 +55,7 @@ exports.addSupHours=async(req,res)=>{
                 where teacherid=? and isExtra=1
             `,[user_id])
             let d=durations[0]
-            await conn.query(`update payment set suphour suphourcourse=?, suphourtut=?, suphourlab=? where teacherid=? and periodid=?`,
+            await conn.query(`update payment set suphour=?, suphourcourse=?, suphourtut=?, suphourlab=? where teacherid=? and periodid=?`,
             [(d.suphourcourse+d.suphourlab+d.suphourtut)||0,d.suphourcourse||0,d.suphourtut||0,d.suphourlab||0,user_id,pid])
         }
         res.status(200).json({message:"sup hours updated"})
