@@ -145,3 +145,51 @@ exports.saveRank=async(req,res)=>{
         console.log(error)
     }
 }
+
+function getCustomWeekNumber(day){
+    if (day<=5) return 1;
+    if (day <=10) return 2;
+    if (day <= 15) return 3;
+    if (day<= 20) return 4;
+    if (day <= 25) return 5;
+    return 6;
+  }
+exports.addRecord=async(req,res)=>{
+    const {day,month}=req.query
+    console.log("day and month numbers are   ",req.query)
+    try{
+        let conn=await db.getConnection()
+        let weekNumber=getCustomWeekNumber(day)
+        let teachers=await conn.query(`select distinct teacherid, dayid from globaltimetableplanb  where isExtra=1 and presence=1`)
+        console.log("absence record teachers are", teachers)
+        for(const t of teachers){
+            switch (t.dayid){
+            case 5:
+                t.dayid=day-1;
+                break;
+            case 4:
+                t.dayid=day-2;
+                break;
+            case 3:
+                t.dayid=day-3;
+                break;
+            case 2:
+                t.dayid=day-4;
+                break;
+            case 1:
+                t.dayid=day-5;
+                break;
+            default:
+                break;
+        } 
+            await conn.query(`insert  into absencerecord (teacherid, weeknumber, monthnumber,daynumber) values (?,?,?,?)`,[t.teacherid,weekNumber,month,t.dayid])
+          
+        }
+        res.status(200).json("nice")
+        conn.release()
+
+    }
+    catch(error){
+        console.log(error)
+    }
+}
