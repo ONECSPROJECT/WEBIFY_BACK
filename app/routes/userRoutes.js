@@ -19,6 +19,9 @@ router.post('/save-schedule',saveController.saveSched)
 router.post('/save-periods',saveController.savePeriods)
 router.post('/save-vacation',saveController.saveVacations)
 router.post('/update-rank',saveController.saveRank)
+router.post('/add-record',saveController.addRecord)
+
+
 
 router.get('/fetch-teachers',fetchController.getTeachers)
 router.get('/fetch-promotions',fetchController.getPromotions)
