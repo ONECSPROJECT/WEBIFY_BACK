@@ -115,3 +115,8 @@ update  ranks set payment=700 where rankid=2;
 update  ranks set payment=900 where rankid=3;
 alter table payment add column suphour int;
 update payment set suphour=0 where paymentid>=1;
+
+
+
+create table absenceRecord (recordId int primary key auto_increment, teacherid int, weekNumber int, monthNumber int, dayNumber int, foreign key (teacherid) references user (user_id));
+insert into dayofweek (name) values ("Friday")
