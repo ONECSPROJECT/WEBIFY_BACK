@@ -1,7 +1,9 @@
 const bcrypt = require('bcrypt');
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
-const util = require('util');
+const util = require('util')
+require('dotenv').config();
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 const signToken = (id, role) => {
     return jwt.sign({ id, role }, process.env.JWT_SECRET, {
@@ -31,18 +33,26 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 exports.register = async (req, res) => {
-    const { first_name, last_name, state, payment_information, faculty, email, password, role } = req.body;
-
+    const { first_name, last_name, state, payment_information, grade,faculty, email, password, role,date,masked } = req.body;
+    console.log("register infos:",req.body)
     let conn;
     try {
         conn = await db.getConnection();
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
-
+        console.log("password hashed")
+        let full_name=`${first_name} ${last_name}`
         const userResult = await conn.query(
-            'INSERT INTO User (first_name, last_name, state, payment_information, faculty) VALUES (?, ?, ?, ?, ?)',
-            [first_name, last_name, state, payment_information, faculty]
+            'INSERT INTO User (first_name, last_name, state, payment_information, faculty, full_name, masked) VALUES (?, ?, ?, ?, ?,?,?)',
+            [first_name, last_name, state, payment_information, faculty,full_name,masked]
         );
+        const periodId=await conn.query(`select periodid from periods where ?>=startdate and ?<=enddate `,[date,date])
+        console.log(periodId[0].periodid)
+        const teacherId=await conn.query(`select user_id from user where last_name=? and first_name=?`,[last_name,first_name])
+        console.log(teacherId[0].user_id)
+        const addToRankHistory=await conn.query(`insert into teacherrankhistory(teacherid,rankid,startdate,enddate,periodid) values(?,?,?,?,?)`,[teacherId[0].user_id, grade,date,null,periodId[0].periodid])
+        const addtoPayment=await conn.query(`insert into payment(teacherid,suphour, suphourcourse,suphourtut,suphourlab,totalpayment,status,periodid,rankid) values (?,?,?,?,?,?,?,?) `,[teacherId[0].user_id,0,0,0,0,0,0,periodId[0].periodid,grade])
+        console.log("teacher added")
         const user_id = userResult.insertId;
 
         await conn.query(
@@ -59,30 +69,46 @@ exports.register = async (req, res) => {
     }
 };
 
+
+
+
 exports.login = async (req, res) => {
     const { email, password } = req.body;
+    console.log("Login request received:", req.body);
 
     let conn;
     try {
         conn = await db.getConnection();
+        console.log("Database connection established.");
+
         const accounts = await conn.query(
             'SELECT * FROM Account WHERE email = ?',
             [email]
         );
 
+        console.log("Accounts found:", accounts); // Log the retrieved accounts
+
         if (accounts.length === 0) {
-            return res.status(400).json({ error: 'Invalid email or password' });
+            console.log("No account found for this email."); // Debugging log
+            return res.status(400).json({ error: 'Invalid email or password type 1' });
         }
 
         const account = accounts[0];
+        console.log("Stored hash:", account.password_hash);
+        console.log("Entered password:", password);
+
         const isMatch = await bcrypt.compare(password, account.password_hash);
+        console.log("Password match result:", isMatch);
+
         if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid email or password' });
+            console.log("Password does not match.");
+            return res.status(400).json({ error: 'Invalid email or password type 2' });
         }
 
+        console.log("Login successful! Creating token...");
         createSendToken(account, 200, req, res);
     } catch (error) {
-        console.error(error);
+        console.error("Error during login:", error);
         res.status(500).json({ error: 'Server error' });
     } finally {
         if (conn) conn.release();

@@ -4,14 +4,11 @@
 const assert = require('node:assert/strict');
 const Mailjet = require('node-mailjet');
 const mailjet = Mailjet.apiConnect(
-    process.env.MJ_APIKEY_PUBLIC || 'your-public-key',
-    process.env.MJ_APIKEY_PRIVATE || 'your-private-key',
+    process.env.MJ_APIKEY_PUBLIC || '0c189594977645e19bdef0f5665d521e',
+    process.env.MJ_APIKEY_PRIVATE || '0f4df62ab260d1bfc0b579e584dbbb44',
 );
 
 function request(recipientMail, url) {
-
-    assert.match(senderMail, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid sender email format");
-    assert.match(recipientMail, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid recipient email format");
 
     return mailjet
         .post('send', { version: 'v3.1' })
@@ -19,7 +16,7 @@ function request(recipientMail, url) {
             Messages: [
                 {
                     From: {
-                        Email: 'hardcoded-email',
+                        Email: 'm.djenadi@esi-sba.dz',
                         Name: "Webify"
                     },
                     To: [

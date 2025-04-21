@@ -7,7 +7,9 @@ CREATE TABLE User (
     last_name VARCHAR(255) NOT NULL,
     state CHAR(50),
     payment_information CHAR(255),
-    faculty CHAR(255)
+    faculty CHAR(255),
+    full_name CHAR(255),
+    masked BOOLEAN
 );
 
 CREATE TABLE Account (
@@ -20,11 +22,15 @@ CREATE TABLE Account (
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE SessionType (
-    session_type_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255) NOT NULL,
-    conversion_factor INT NOT NULL,
-    hierarchy_level INT NOT NULL
+CREATE TABLE DayOfWeek (
+    dayid INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255)
+);
+
+CREATE TABLE Holidays (
+    holidayid INT PRIMARY KEY AUTO_INCREMENT,
+    startdate DATE,
+    enddate DATE
 );
 
 CREATE TABLE Promo (
@@ -35,6 +41,13 @@ CREATE TABLE Promo (
 CREATE TABLE Speciality (
     speciality_id INT PRIMARY KEY AUTO_INCREMENT,
     name CHAR(255) NOT NULL
+);
+
+CREATE TABLE SessionType (
+    session_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255),
+    conversion_factor DECIMAL(10,2),
+    hierarchy_level INT
 );
 
 CREATE TABLE Schedule (
@@ -52,6 +65,7 @@ CREATE TABLE Schedule (
     FOREIGN KEY (speciality_id) REFERENCES Speciality(speciality_id) ON DELETE CASCADE,
     FOREIGN KEY (session_type) REFERENCES SessionType(session_type_id) ON DELETE SET NULL
 );
+
 CREATE TABLE ProfRank (
     rank_id INT PRIMARY KEY AUTO_INCREMENT,
     professor_id INT,
@@ -61,45 +75,4 @@ CREATE TABLE ProfRank (
     FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Period (
-    period_id INT PRIMARY KEY AUTO_INCREMENT,
-    professor_id INT,
-    start_date INT NOT NULL,
-    end_date INT NOT NULL,
-    rank_id INT,
-    FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (rank_id) REFERENCES ProfRank(rank_id)
-);
-
-CREATE TABLE Payment (
-    payment_id INT PRIMARY KEY AUTO_INCREMENT,
-    professor_id INT,
-    from_date INT NOT NULL,
-    to_date INT NOT NULL,
-    total_hours INT NOT NULL,
-    calculated_extra_hours INT NOT NULL,
-    amount INT NOT NULL,
-    processed_date INT NOT NULL,
-    FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE
-);
-
-CREATE TABLE AbsenceRecord (
-    record_id INT PRIMARY KEY AUTO_INCREMENT,
-    professor_id INT,
-    period_id INT,
-    date INT NOT NULL,
-    missed_hours INT NOT NULL,
-    FOREIGN KEY (professor_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (period_id) REFERENCES Period(period_id) ON DELETE CASCADE
-);
-
-
--- below is added for password reset functionality. Should figure out a way to easily migrate
-CREATE TABLE PasswordReset (
-    reset_id INT PRIMARY KEY AUTO_INCREMENT,
-    account_id INT NOT NULL,
-    token CHAR(255) UNIQUE NOT NULL,
-    expires_at DATETIME NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (account_id) REFERENCES Account(user_id) ON DELETE CASCADE
-);
+SOURCE neww.sql;

@@ -1,12 +1,11 @@
 const express = require('express');
-const dotenv = require('dotenv');
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('node:path');
 const userRoutes = require('./routes/userRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
+require('dotenv').config({ path: './.env' });
 
-dotenv.config({ path: './config.env' });
 
 const app = express();
 
