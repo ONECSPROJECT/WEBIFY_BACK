@@ -46,9 +46,9 @@ exports.handleExport = async (req, res) => {
 
     const rate = rank?.payment || 0;
     const totalHours = 
-      (payment[0].suphourCourse || 0) + 
-      (payment[0].suphourTut || 0) + 
-      (payment[0].suphourLab || 0);
+      (payment[0].suphourCourse/60 || 0) + 
+      (payment[0].suphourTut/60 || 0) + 
+      (payment[0].suphourLab/60 || 0);
     const totalPayment = totalHours * rate;
 
     await conn.query(`
@@ -74,13 +74,13 @@ exports.handleExport = async (req, res) => {
       .fontSize(12)
       .text(`Teacher: ${payment[0].teacherName}`)
       .text(`Rank: ${payment[0].latestRank || 'N/A'}`)
-      .text(`Course Hours: ${payment[0].suphourCourse}`)
-      .text(`Tutoring Hours: ${payment[0].suphourTut}`)
-      .text(`Lab Hours: ${payment[0].suphourLab}`)
+      .text(`Course Hours: ${payment[0].suphourCourse/60}`)
+      .text(`Tutoring Hours: ${payment[0].suphourTut/60}`)
+      .text(`Lab Hours: ${payment[0].suphourLab/60}`)
       .text(`Total Hours: ${totalHours}`)
       .text(`Total Payment: ${totalPayment} DA`)
       .text(`Status: ${status}`)
-      .text(`Period ID: ${payment[0].periodid}`)
+      .text(`Period Number this year: ${payment[0].periodid}`)
       .text('------------------------------');
 
     doc.end();
