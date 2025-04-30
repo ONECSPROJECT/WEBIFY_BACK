@@ -52,11 +52,17 @@ exports.addSupHours=async(req,res)=>{
                     sum(case when sessiontypeid=2 then duration else 0 end) as suphourtut,
                     sum(case when sessiontypeid=3 then duration else 0 end) as suphourlab
                 from globaltimetableplanb
-                where teacherid=? and isExtra=1
+                where teacherid=? and isExtra=1 and presence=1
             `,[user_id])
+            console.log("USER ID", user_id)
+            
+            let latestRankID= await conn.query(`select rankid from teacherrankhistory where teacherid=? and enddate is null`,[user_id])
+
+            console.log("LATEST RANK",latestRankID[0])
+            let paymentperhour=await conn.query(`select payment from ranks where rankid=?`,[latestRankID[0].rankid])
             let d=durations[0]
-            await conn.query(`update payment set suphour=?, suphourcourse=?, suphourtut=?, suphourlab=? where teacherid=? and periodid=?`,
-            [(d.suphourcourse+d.suphourlab+d.suphourtut)||0,d.suphourcourse||0,d.suphourtut||0,d.suphourlab||0,user_id,pid])
+            await conn.query(`update payment set suphour=?, suphourcourse=?, suphourtut=?, suphourlab=?, totalpayment=? where teacherid=? and periodid=?`,
+            [(Number(d.suphourcourse)+Number(d.suphourlab)+Number(d.suphourtut))||0,d.suphourcourse||0,d.suphourtut||0,d.suphourlab||0,Number(paymentperhour[0].payment)*(Number(d.suphourcourse)+Number(d.suphourlab)+Number(d.suphourtut)),user_id,pid])
         }
         res.status(200).json({message:"sup hours updated"})
         conn.release()

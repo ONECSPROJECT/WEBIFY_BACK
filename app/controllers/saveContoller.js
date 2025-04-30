@@ -155,34 +155,55 @@ function getCustomWeekNumber(day){
     return 6;
   }
 exports.addRecord=async(req,res)=>{
-    const {day,month}=req.query
+    let {day,month}=req.query
     console.log("day and month numbers are   ",req.query)
     try{
         let conn=await db.getConnection()
         let weekNumber=getCustomWeekNumber(day)
-        let teachers=await conn.query(`select distinct teacherid, dayid from globaltimetableplanb  where isExtra=1 and presence=1`)
+        let teachers=await conn.query(`select  teacherid, dayid from globaltimetableplanb  where isExtra=1 and presence=1`)
         console.log("absence record teachers are", teachers)
+        if(Number(day)<7){
+            month=Number(month)-1
+            weekNumber=5
+        }
         for(const t of teachers){
-            switch (t.dayid){
-            case 5:
-                t.dayid=day-1;
-                break;
-            case 4:
-                t.dayid=day-2;
-                break;
-            case 3:
-                t.dayid=day-3;
-                break;
-            case 2:
-                t.dayid=day-4;
-                break;
-            case 1:
-                t.dayid=day-5;
-                break;
-            default:
-                break;
-        } 
-            await conn.query(`insert  into absencerecord (teacherid, weeknumber, monthnumber,daynumber) values (?,?,?,?)`,[t.teacherid,weekNumber,month,t.dayid])
+            switch (Number(t.dayid)) {
+                case 5:
+                    t.dayid = Number(day) - 1;
+                    if (t.dayid < 0) {
+                        t.dayid += 30;
+                    }
+                    break;
+                case 4:
+                    t.dayid = Number(day) - 2;
+                    if (t.dayid < 0) {
+                        t.dayid += 30;
+                    }
+                    break;
+                case 3:
+                    t.dayid = Number(day) - 3;
+                    if (t.dayid < 0) {
+                        t.dayid += 30;
+                    }
+                    break;
+                case 2:
+                    t.dayid = Number(day) - 4;
+                    if (t.dayid < 0) {
+                        t.dayid += 30;
+                    }
+                    break;
+                case 1:
+                    t.dayid = Number(day) - 5;
+                    if (t.dayid < 0) {
+                        t.dayid += 30;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            const latestRankID= await conn.query(`select rankid from teacherrankhistory where teacherid=? and enddate is null`,[t.teacherid])
+            console.log("latest rank is",latestRankID[0].rankid)
+            await conn.query(`insert  into absencerecord (teacherid, weeknumber, monthnumber,daynumber,rankid) values (?,?,?,?,?)`,[t.teacherid,weekNumber,month,Number(t.dayid),latestRankID[0].rankid])
           
         }
         res.status(200).json("nice")

@@ -110,9 +110,13 @@ create table payment (paymentid int primary key auto_increment, teacherID int, s
 alter table user add column full_name char(255)
 alter table user add column masked boolean; 
 alter table ranks add column payment int;
-update table ranks set payment=500 where rankid=1;
+update  ranks set payment=500 where rankid=1;
 update  ranks set payment=700 where rankid=2;
 update  ranks set payment=900 where rankid=3;
+update table ranks drop  column  course_payment;
+update table ranks drop  column  tut_payment;
+update table ranks drop  column  lab_payment;
+
 alter table payment add column suphour int;
 update payment set suphour=0 where paymentid>=1;
 
@@ -120,3 +124,5 @@ update payment set suphour=0 where paymentid>=1;
 
 create table absenceRecord (recordId int primary key auto_increment, teacherid int, weekNumber int, monthNumber int, dayNumber int, foreign key (teacherid) references user (user_id));
 insert into dayofweek (name) values ("Friday")
+alter table absenceRecord add column rankid
+ADD CONSTRAINT fk_rankid FOREIGN KEY (rankid) REFERENCES ranks(rankid);

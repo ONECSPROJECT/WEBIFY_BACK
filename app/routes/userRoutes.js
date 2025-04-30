@@ -40,7 +40,7 @@ router.get('/get-period',fetchController.getPeriod)
 router.get('/get-teachers',fetchController.getTeacherForPaymentPage)
 router.get('/get-weekend',fetchController.getWeekend)
 router.get('/export/pdf', exportController.handleExport)
-
+router.get('/export/excel',exportController.exportExcel)
 
 router.put('/mark-as-paid',updateController.markAsPaid)
 router.put('/mask-teacher',updateController.maskTeacher)
