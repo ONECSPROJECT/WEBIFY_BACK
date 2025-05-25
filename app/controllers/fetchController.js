@@ -55,7 +55,7 @@ exports.getTableTeachers = async (req, res) => {
           ) t2 ON t1.teacherid = t2.teacherid AND t1.startdate = t2.max_start
         ) trh ON u.user_id = trh.teacherid
         LEFT JOIN ranks r ON trh.rankid = r.rankid
-        where masked=0
+        where masked=0 and u.user_id>1
       `);
       console.log(teachers)
       res.status(200).json(teachers);

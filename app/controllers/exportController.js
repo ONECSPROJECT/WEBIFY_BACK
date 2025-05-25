@@ -123,6 +123,9 @@ exports.handleExport = async (req, res) => {
     if (conn) conn.release();
   }
 };
+
+
+
 const ExcelJS = require('exceljs');
 
 exports.exportExcel = async (req, res) => {
@@ -141,6 +144,7 @@ exports.exportExcel = async (req, res) => {
         p.suphour,
         p.rankid,
         u.full_name AS teacherName,
+        u.state AS State,
         r.name AS latestRank,
         rk.payment AS rate
       FROM payment p
@@ -153,13 +157,14 @@ exports.exportExcel = async (req, res) => {
       ) r ON r.teacherid = p.teacherid
       LEFT JOIN ranks rk ON rk.rankid = p.rankid
     `);
-
+    console.log("state", payments[0].State)
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Payments');
 
     worksheet.columns = [
       { header: 'Teacher', key: 'teacherName', width: 25 },
       { header: 'Rank', key: 'latestRank', width: 20 },
+      { header: 'State', key: 'State', width: 20 },
       { header: 'Course Hours', key: 'courseHours', width: 15 },
       { header: 'Tutoring Hours', key: 'tutoringHours', width: 15 },
       { header: 'Lab Hours', key: 'labHours', width: 15 },
@@ -186,6 +191,7 @@ exports.exportExcel = async (req, res) => {
       worksheet.addRow({
         teacherName: payment.teacherName,
         latestRank: payment.latestRank || 'N/A',
+        State: payment.State || 'N/A',
         courseHours: payment.suphourCourse / 60,
         tutoringHours: payment.suphourTut / 60,
         labHours: payment.suphourLab / 60,
