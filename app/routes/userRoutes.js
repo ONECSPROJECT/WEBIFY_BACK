@@ -1,6 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/authController');
-const passResetController = require('../controllers/passResetController');
+const passController = require('../controllers/passController');
+const authMiddleware = require('../middlewares/authMiddleware');
 const fetchController=require('../controllers/fetchController')
 const saveController=require('../controllers/saveContoller')
 const deleteController=require('../controllers/deleteController')
@@ -11,8 +12,8 @@ const exportController = require('../controllers/exportController');
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 
-router.post('/request-reset-password', passResetController.requestPasswordReset);
-router.post('/reset-password', passResetController.resetPassword);
+router.post('/request-reset-password', passController.requestPasswordReset);
+router.post('/reset-password', passController.resetPassword);
 router.post('/save-holiday',saveController.saveHoliday)
 router.post('/save-semesters',saveController.saveSemesters)
 router.post('/save-schedule',saveController.saveSched)
@@ -42,6 +43,8 @@ router.get('/get-weekend',fetchController.getWeekend)
 router.get('/export/pdf', exportController.handleExport)
 router.get('/export/excel',exportController.exportExcel)
 
+// testing protect middleware
+router.get('/auth', authMiddleware.protect, authController.testProtected);
 router.put('/mark-as-paid',updateController.markAsPaid)
 router.put('/mask-teacher',updateController.maskTeacher)
 router.put('/mark-absence',updateController.markAbsence)

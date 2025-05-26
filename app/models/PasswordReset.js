@@ -9,14 +9,12 @@ class PasswordReset {
     }
 
     static async findByToken(token) {
-        const [rows] = await pool.query(
+        const [entry] = await pool.query(
             'SELECT * FROM PasswordReset WHERE token = ? AND expires_at > NOW()',
             [token]
 
         )
-        console.log("query result inside findByToken:", rows);
-
-        return rows; // could have multiple records
+        return entry || null; // could have multiple records
     }
 
     static async deleteByAccountId(accountId) {

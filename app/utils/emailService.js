@@ -9,8 +9,6 @@ const mailjet = Mailjet.apiConnect(
 );
 function request(recipientMail, url) {
 
-    console.log("email service checkpoint")
-    console.log(process.env.MJ_APIKEY_PRIVATE)
     return mailjet
         .post('send', { version: 'v3.1' })
         .request({
@@ -32,8 +30,8 @@ function request(recipientMail, url) {
                         <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
                             <div style="max-width: 500px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
                                 <h2 style="color: #333;">Reset Your Password</h2>
-                                <p style="color: #555;">Thanks for signing up! Click the button below to verify your email address:</p>
-                                <a href="${url}" style="display: inline-block; background: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Verify Email</a>
+                                <p style="color: #555;">You have forgotten your password? Click the button below to reset your password:</p>
+                                <a href="${url}" style="display: inline-block; background: #007bff; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
                                 <p style="color: #777; margin-top: 10px;">If you didn’t request this, please ignore this email.</p>
                             </div>
                         </div>

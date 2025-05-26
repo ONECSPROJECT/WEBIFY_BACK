@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const path = require('node:path');
 const userRoutes = require('./routes/userRoutes');
+const scheduleRoutes = require('./routes/scheduleRoutes');
 require('dotenv').config({ path: './.env' });
 
 
@@ -27,6 +28,8 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/user', userRoutes);
+app.use('/api/schedule', scheduleRoutes);
+
 // Root
 app.get('/', (req, res) => {
     res.send('Hello, World!');
@@ -41,7 +44,3 @@ app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
 });
 
-app.use((err, req, res, next) => {
-    console.error("🔥 Uncaught Error:", err);
-    res.status(500).json({ message: "Internal Server Error", error: err.message });
-});

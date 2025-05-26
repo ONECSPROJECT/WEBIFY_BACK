@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const { request } = require('../utils/emailService');
 const PasswordReset = require('../models/PasswordReset');
 const Account = require('../models/Account');
+const bcrypt = require('bcrypt');
 
 
 exports.requestPasswordReset = async (req, res) => {

@@ -1,16 +1,19 @@
 CREATE DATABASE IF NOT EXISTS suphours;
 USE suphours;
 
+-- USER TABLE
 CREATE TABLE User (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
-    first_name CHAR(255) NOT NULL,
-    last_name CHAR(255) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    full_name CHAR(255),
+    masked BOOLEAN,
     state CHAR(50),
     payment_information CHAR(255),
     faculty CHAR(255)
 );
 
-
+-- ACCOUNT TABLE
 CREATE TABLE Account (
     account_id INT PRIMARY KEY AUTO_INCREMENT,
     email CHAR(255) UNIQUE NOT NULL,
@@ -21,108 +24,175 @@ CREATE TABLE Account (
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
-
-create table DayOfWeek ( dayid int primary key auto_increment, name char(255));
-create table holidays (holidayid int primary key auto_increment, startdate date,enddate date);
-create table promotion (promoid int primary key auto_increment, name char(255) not null);
-create table ranks (rankid int primary key auto_increment, name char(255),course_payment int, tut_payment int, lab_payment int);
-create table semesters (semesterid int primary key auto_increment, name char(255), startdate date, enddate date);
-create table periods (periodid int primary key auto_increment, name char(255),startdate date, enddate date, semesterid int, foreign key (semesterid) references semesters(semesterid));
-create table sessionType (session_type_id int primary key auto_increment, name char(255), conversion_factor decimal(10,2),hierarchy_level int);
-create table speciality(specialityid int primary key auto_increment, name char(255), promoid int, FOREIGN key (promoid) references promotion(promoid));
-create table teacherrankhistory(historyid int primary KEY auto_increment, teacherID int, rankid int,startdate date, enddate date, periodid int, foreign key (teacherID) references user(user_id), foreign key (rankid) references ranks(rankid), foreign key(periodid) references periods(periodid));
-create table vacation(vacationid int primary key auto_increment, teacherID int,  startdate date, enddate date,semesterid int, foreign key (teacherID) references user(user_id), foreign key (semesterid) references semesters(semesterid));
-
-insert into ranks(name, course_payment, tut_payment, lab_payment) values ("MCA",500,400,300);
-insert into ranks(name, course_payment, tut_payment, lab_payment) values ("MCB",700,500,400);
-insert into ranks(name, course_payment, tut_payment, lab_payment) values ("PRF",900,800,600);
-
-
-insert into promotion(name) values ('1CPI');
-insert into promotion(name) values ('2CPI');
-insert into promotion(name) values ('1CS');
-insert into promotion(name) values ('2CS');
-insert into promotion(name) values ('3CS');
-insert into sessionType(name,conversion_factor,hierarchy_level) values ('Course',1.5,1);
-insert into sessionType(name,conversion_factor,hierarchy_level) values ('TD',1,2);
-insert into sessionType(name,conversion_factor,hierarchy_level) values ('TP',0.75,3);
-insert into speciality(name, promoID) values ('ISI',4);
-insert into speciality(name, promoID) values ('SIW',4);
-insert into speciality(name, promoID) values ('IASD',4);
-insert into speciality(name, promoID) values ('ISI',5);
-insert into speciality(name, promoID) values ('SIW',5);
-insert into speciality(name, promoID) values ('IASD',5);
-
-
-SET @user_id = LAST_INSERT_ID();
-
-
-
-
-
-
-
-
--- below is added for password reset functionality. Should figure out a way to easily migrate
+-- PASSWORD RESET
 CREATE TABLE PasswordReset (
     reset_id INT PRIMARY KEY AUTO_INCREMENT,
     account_id INT NOT NULL,
     token CHAR(255) UNIQUE NOT NULL,
     expires_at DATETIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (account_id) REFERENCES Account(user_id) ON DELETE CASCADE
+    FOREIGN KEY (account_id) REFERENCES Account(account_id) ON DELETE CASCADE
 );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-CREATE TABLE GlobalTimeTableplanb (
-    globaltimetableID INT PRIMARY KEY AUTO_INCREMENT,
-    promoID INT NOT NULL,
-    specialityid int,
-    teacherID INT NOT NULL,
-    dayID INT NOT NULL,
-    startTime TIME NOT NULL,
-    duration INT NOT NULL,
-    sessiontypeid int,
-    isextra boolean,
-    presence boolean,
-    period int,
-    FOREIGN KEY (promoID) REFERENCES Promotion(promoID),
-    FOREIGN KEY (teacherID) REFERENCES user(user_id),
-    FOREIGN KEY (dayID) REFERENCES DayOfWeek(dayID),
-    foreign key (specialityid) references speciality(specialityid),
-    foreign key (sessiontypeid) references sessionType(session_type_id)
+-- PROMOTIONS / PROGRAMS
+CREATE TABLE Promotion (
+    promo_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255) NOT NULL
 );
 
-create table payment (paymentid int primary key auto_increment, teacherID int, suphourcourse int, suphourtut int, suphourlab int, totalpayment int, status boolean, periodid int, rankid int, foreign key(teacherID) references user(user_id), foreign key(periodid) references periods(periodid),foreign key (rankid) references ranks (rankid) );
-alter table user add column full_name char(255)
-alter table user add column masked boolean; 
-alter table ranks add column payment int;
-update  ranks set payment=500 where rankid=1;
-update  ranks set payment=700 where rankid=2;
-update  ranks set payment=900 where rankid=3;
-update table ranks drop  column  course_payment;
-update table ranks drop  column  tut_payment;
-update table ranks drop  column  lab_payment;
+-- SPECIALITIES
+CREATE TABLE Speciality (
+    speciality_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255) NOT NULL,
+    promo_id INT,
+    FOREIGN KEY (promo_id) REFERENCES Promotion(promo_id)
+);
 
-alter table payment add column suphour int;
-update payment set suphour=0 where paymentid>=1;
+-- RANKS
+CREATE TABLE Ranks (
+    rank_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255),
+    payment INT,
+    pay_rate_course INT,
+    pay_rate_tut INT,
+    pay_rate_lab INT
+);
 
+-- RANK HISTORY
+CREATE TABLE TeacherRankHistory (
+    history_id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_id INT,
+    rank_id INT,
+    start_date DATE,
+    end_date DATE,
+    period_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES User(user_id),
+    FOREIGN KEY (rank_id) REFERENCES Ranks(rank_id),
+    FOREIGN KEY (period_id) REFERENCES Periods(period_id)
+);
 
+-- DAY OF WEEK
+CREATE TABLE DayOfWeek (
+    day_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255)
+);
 
-create table absenceRecord (recordId int primary key auto_increment, teacherid int, weekNumber int, monthNumber int, dayNumber int, foreign key (teacherid) references user (user_id));
-insert into dayofweek (name) values ("Friday")
-alter table absenceRecord add column rankid
-ADD CONSTRAINT fk_rankid FOREIGN KEY (rankid) REFERENCES ranks(rankid);
+-- HOLIDAYS
+CREATE TABLE Holidays (
+    holiday_id INT PRIMARY KEY AUTO_INCREMENT,
+    start_date DATE,
+    end_date DATE
+);
+
+-- SESSION TYPES
+CREATE TABLE SessionType (
+    session_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255),
+    conversion_factor DECIMAL(10,2),
+    hierarchy_level INT
+);
+
+-- SEMESTERS
+CREATE TABLE Semesters (
+    semester_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255),
+    start_date DATE,
+    end_date DATE
+);
+
+-- PERIODS
+CREATE TABLE Periods (
+    period_id INT PRIMARY KEY AUTO_INCREMENT,
+    name CHAR(255),
+    start_date DATE,
+    end_date DATE,
+    semester_id INT,
+    FOREIGN KEY (semester_id) REFERENCES Semesters(semester_id)
+);
+
+-- ABSENCE RECORDS
+CREATE TABLE AbsenceRecord (
+    record_id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_id INT,
+    week_number INT,
+    month_number INT,
+    day_number INT,
+    rank_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES User(user_id),
+    FOREIGN KEY (rank_id) REFERENCES Ranks(rank_id)
+);
+
+-- VACATION
+CREATE TABLE Vacation (
+    vacation_id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_id INT,
+    start_date DATE,
+    end_date DATE,
+    semester_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES User(user_id),
+    FOREIGN KEY (semester_id) REFERENCES Semesters(semester_id)
+);
+
+-- PAYMENT
+CREATE TABLE Payment (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_id INT,
+    suphour INT DEFAULT 0,
+    suphour_course INT,
+    suphour_tut INT,
+    suphour_lab INT,
+    total_payment INT,
+    status BOOLEAN,
+    period_id INT,
+    rank_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES User(user_id),
+    FOREIGN KEY (period_id) REFERENCES Periods(period_id),
+    FOREIGN KEY (rank_id) REFERENCES Ranks(rank_id)
+);
+
+-- GLOBAL TIME TABLE
+CREATE TABLE Schedule (
+    schedule_id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_id INT,
+    promo_id INT,
+    speciality_id INT,
+    day_id INT,
+    start_time TIME NOT NULL,
+    duration_minutes INT NOT NULL,
+    session_type_id INT,
+    is_extra BOOLEAN,
+    presence BOOLEAN,
+    period_id INT,
+    FOREIGN KEY (teacher_id) REFERENCES User(user_id),
+    FOREIGN KEY (promo_id) REFERENCES Promotion(promo_id),
+    FOREIGN KEY (speciality_id) REFERENCES Speciality(speciality_id),
+    FOREIGN KEY (day_id) REFERENCES DayOfWeek(day_id),
+    FOREIGN KEY (session_type_id) REFERENCES SessionType(session_type_id),
+    FOREIGN KEY (period_id) REFERENCES Periods(period_id)
+);
+
+-- RANKS
+INSERT INTO Ranks(name, pay_rate_course, pay_rate_tut, pay_rate_lab, payment)
+VALUES
+("MCA", 500, 400, 300, 500),
+("MCB", 700, 500, 400, 700),
+("PRF", 900, 800, 600, 900);
+
+-- PROMOTIONS
+INSERT INTO Promotion(name) VALUES
+('1CPI'), ('2CPI'), ('1CS'), ('2CS'), ('3CS');
+
+-- SPECIALITIES
+INSERT INTO Speciality(name, promo_id) VALUES
+('ISI', 4), ('SIW', 4), ('IASD', 4),
+('ISI', 5), ('SIW', 5), ('IASD', 5);
+
+-- SESSION TYPES
+INSERT INTO SessionType(name, conversion_factor, hierarchy_level) VALUES
+('Course', 1.5, 1),
+('TD', 1.0, 2),
+('TP', 0.75, 3);
+
+-- DAY OF WEEK (sample)
+INSERT INTO DayOfWeek(name) VALUES ('Friday');
+

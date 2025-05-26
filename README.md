@@ -3,19 +3,29 @@
 ## 📁 Directory Structure
 ```
 back/
-| .git/                  # Git repository
-| app/                   # Application code
-| | config/              # Configuration files
-| | Dockerfile           # Dockerfile for the Node.js app
-| | index.js             # Main server file
-| | package-lock.json    # NPM lock file
-| | package.json         # Node.js dependencies
-| db/                    # Database-related files
-| .env                   # Environment variables (not committed)
-| .gitignore             # Git ignore rules
-| README.md              # Documentation
-| docker-compose.yml     # Docker Compose configuration
-| init.sql               # SQL initialization script
+├── app
+│   ├── config
+│   │   ├── db.js
+│   │   └── swagger.json
+│   ├── controllers
+│   │   ├── authController.js
+│   │   └── passResetController.js
+│   ├── Dockerfile
+│   ├── index.js
+│   ├── models
+│   │   ├── Account.js
+│   │   └── PasswordReset.js
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── routes
+│   │   └── userRoutes.js
+│   └── utils
+│       └── emailService.js
+├── db
+│   └── init.sql
+├── docker-compose.yml
+├── README.md
+└── run.sh
 ```
 
 ---
@@ -64,6 +74,28 @@ nodemon index.js
 
 ---
 
-## 🎯 Next Steps
-- Define API endpoints []
-- Implement authentication []
+## SwaggerUI 2.0
+
+- Interactive docs found at `/api-docs`
+- Read more about SwaggerUI [here](https://swagger.io/tools/swagger-ui/)
+
+---
+
+## Bonus
+
+To test the sending of a file (a schedule), try this script:
+```python
+#!/usr/bin/env python3
+
+import requests
+
+# URL for the API endpoint
+url = 'http://localhost:3000/api/schedule/upload-schedule'
+
+# Open the file in binary mode and prepare the payload
+with open('file.xlsx', 'rb') as file:
+    files = {'file': ('file.xlsx', file, 'text/plain')}
+
+    # Send the POST request with the file
+    requests.post(url, files=files)
+```
