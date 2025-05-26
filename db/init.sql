@@ -53,9 +53,9 @@ CREATE TABLE Ranks (
     rank_id INT PRIMARY KEY AUTO_INCREMENT,
     name CHAR(255),
     payment INT,
-    pay_rate_course INT,
-    pay_rate_tut INT,
-    pay_rate_lab INT
+    course_payment INT,
+    tut_payment INT,
+    lab_payment INT
 );
 
 -- RANK HISTORY
@@ -171,9 +171,10 @@ CREATE TABLE Schedule (
     FOREIGN KEY (period_id) REFERENCES Periods(period_id)
 );
 
+-- Filling the database...
+
 -- RANKS
-INSERT INTO Ranks(name, pay_rate_course, pay_rate_tut, pay_rate_lab, payment)
-VALUES
+INSERT INTO Ranks(name, pay_rate_course, pay_rate_tut, pay_rate_lab, payment) VALUES
 ("MCA", 500, 400, 300, 500),
 ("MCB", 700, 500, 400, 700),
 ("PRF", 900, 800, 600, 900);
@@ -182,17 +183,23 @@ VALUES
 INSERT INTO Promotion(name) VALUES
 ('1CPI'), ('2CPI'), ('1CS'), ('2CS'), ('3CS');
 
--- SPECIALITIES
-INSERT INTO Speciality(name, promo_id) VALUES
-('ISI', 4), ('SIW', 4), ('IASD', 4),
-('ISI', 5), ('SIW', 5), ('IASD', 5);
-
 -- SESSION TYPES
 INSERT INTO SessionType(name, conversion_factor, hierarchy_level) VALUES
 ('Course', 1.5, 1),
 ('TD', 1.0, 2),
 ('TP', 0.75, 3);
 
--- DAY OF WEEK (sample)
-INSERT INTO DayOfWeek(name) VALUES ('Friday');
+-- SPECIALITIES
+INSERT INTO Speciality(name, promo_id) VALUES
+('ISI', 4), ('SIW', 4), ('IASD', 4),
+('ISI', 5), ('SIW', 5), ('IASD', 5);
+
+-- DAY OF WEEK (if more needed)
+INSERT INTO DayOfWeek(name) VALUES
+('Monday'), ('Tuesday'), ('Wednesday'), ('Thursday'), ('Friday'), ('Saturday'), ('Sunday');
+
+-- UPDATE PAYMENT
+UPDATE Payment SET suphour = 0 WHERE payment_id >= 1;
+
+
 

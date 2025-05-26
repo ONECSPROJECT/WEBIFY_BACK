@@ -48,7 +48,7 @@ router.get('/auth', authMiddleware.protect, authController.testProtected);
 router.put('/mark-as-paid',updateController.markAsPaid)
 router.put('/mask-teacher',updateController.maskTeacher)
 router.put('/mark-absence',updateController.markAbsence)
-router.put('/mark-enddate',updateController.markEnddate)
+router.put('/mark-end_date',updateController.markEnddate)
 router.put('/add-suphoursBySession',updateController.addSupHours)
 router.put('/reset-presence',updateController.resetPresence)
 module.exports = router;

@@ -16,22 +16,22 @@ exports.saveSched = async (req, res) => {
 
         console.log("Checkpoint");
 
-        const dayRows = await conn.query("SELECT dayid, name FROM dayofweek");
+        const dayRows = await conn.query("SELECT day_id, name FROM DayOfWeek");
         const teacherRows = await conn.query("SELECT user_id, CONCAT(last_name, ' ', first_name) AS full_name FROM user");
-        const sessionTypeRows = await conn.query("SELECT session_type_id, name FROM sessiontype");
-        const promotionRows = await conn.query("SELECT promoid, name FROM promotion");
-        const specialityRows = await conn.query("SELECT specialityid, name FROM speciality");
+        const sessionTypeRows = await conn.query("SELECT session_type_id, name FROM SessionType");
+        const promotionRows = await conn.query("SELECT promoid, name FROM Promotion");
+        const specialityRows = await conn.query("SELECT speciality_id, name FROM speciality");
 
         console.log("Checkpoint");
 
-        const dayMap = Object.fromEntries(dayRows.map(row => [row.name, row.dayid]));
+        const dayMap = Object.fromEntries(dayRows.map(row => [row.name, row.day_id]));
         const teacherMap = Object.fromEntries(teacherRows.map(row => [row.full_name, row.user_id]));
         const sessionTypeMap = Object.fromEntries(sessionTypeRows.map(row => [row.name, row.session_type_id]));
         const promotionMap = Object.fromEntries(promotionRows.map(row => [row.name, row.promoid]));
-        const specialityMap = Object.fromEntries(specialityRows.map(row => [row.name, row.specialityid]));
+        const specialityMap = Object.fromEntries(specialityRows.map(row => [row.name, row.speciality_id]));
 
         // 🔹 Updated query to include `isExtra`
-        const query = `INSERT INTO globaltimetableplanB (dayid, teacherid, sessiontypeid, promoid, specialityid, starttime, duration, period, isExtra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        const query = `INSERT INTO globaltimetableplanB (day_id, teacher_id, sessiontypeid, promoid, speciality_id, starttime, duration, period, isExtra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
         for (const session of formattedSchedule) {
             const dayId = dayMap[session.day_of_week];
@@ -65,7 +65,7 @@ exports.saveHoliday=async (req,res)=>{
     const {startDate,endDate}=req.body;
     try{
         let conn= await db.getConnection()
-        let response=await conn.query(`insert into holidays (startdate,enddate) values (?,?);`,[startDate,endDate])
+        let response=await conn.query(`insert into Holidays (start_date,end_date) values (?,?);`,[startDate,endDate])
         res.status(200).json("holiday saved!")
         conn.release()
         }
@@ -81,7 +81,7 @@ exports.saveSemesters=async (req,res)=>{
         let conn=await db.getConnection()
        for(const s of ["semestre1","semestre2"]){
         await conn.query(
-            `insert into semesters (name,startdate,enddate) values (?, ?,?)`,[academicSemesters[s].name, academicSemesters[s].start,academicSemesters[s].end]
+            `insert into Semesters (name,start_date,end_date) values (?, ?,?)`,[academicSemesters[s].name, academicSemesters[s].start,academicSemesters[s].end]
           )
        }
         res.status(200).json("nice")
@@ -98,7 +98,7 @@ exports.savePeriods=async(req,res)=>{
         let conn=await db.getConnection()
         for(const s of ["periode1","periode2","periode3"]){
             await conn.query(
-                `insert into periods (name,startdate,enddate,semesterid) values (?, ?,?,?)`,[academicPeriods[s].name, academicPeriods[s].start,academicPeriods[s].end,academicPeriods[s].Semesterid]
+                `insert into Periods (name,start_date,end_date,semester_id) values (?, ?,?,?)`,[academicPeriods[s].name, academicPeriods[s].start,academicPeriods[s].end,academicPeriods[s].Semesterid]
               )
            }
             res.status(200).json("nice")
@@ -107,16 +107,16 @@ exports.savePeriods=async(req,res)=>{
         catch(error){
             console.log(error)
         }
-    
+
 }
 
 exports.saveVacations=async(req,res)=>{
     const {teacher,startDate,endDate}=req.body;
     try{
         let conn=await db.getConnection()
-        let semesterid=await conn.query(`select semesterid from semesters where startdate<=? and ?<=enddate`,[startDate,endDate])
-        if (semesterid){
-            await conn.query(`insert into vacation(teacherid, startdate, enddate,semesterid) values (?,?,?,?);`,[teacher,startDate,endDate,semesterid[0].semesterid])
+        let semester_id=await conn.query(`select semester_id from Semesters where start_date<=? and ?<=end_date`,[startDate,endDate])
+        if (semester_id){
+            await conn.query(`insert into Vacation(teacher_id, start_date, end_date,semester_id) values (?,?,?,?);`,[teacher,startDate,endDate,semester_id[0].semester_id])
             res.status(200).json("nice")
             console.log("done")
             conn.release()
@@ -132,12 +132,12 @@ exports.saveRank=async(req,res)=>{
     const{teacher,grade,date}=req.body
     try{
         let conn=await db.getConnection()
-        const periodId=await conn.query(`select periodid from teacherrankhistory where  enddate=? `,[date])
+        const periodId=await conn.query(`select period_id from TeacherRankHistory where  end_date=? `,[date])
         console.log("period id is",periodId[0])
         console.log(periodId[0])
         console.log("grade to be inserted",grade)
-        const addToRankHistory=await conn.query(`insert into teacherrankhistory(teacherid,rankid,startdate,enddate,periodid) values(?,?,?,?,?)`,[teacher, grade,date,null,periodId[0].periodid])
-        const addtoPayment=await conn.query(`insert into payment(teacherid,suphourcourse,suphourtut,suphourlab,totalpayment,status,periodid,rankid) values (?,?,?,?,?,?,?,?) `,[teacher,0,0,0,0,0,periodId[0].periodid,grade])
+        const addToRankHistory=await conn.query(`insert into TeacherRankHistory(teacher_id,rank_id,start_date,end_date,period_id) values(?,?,?,?,?)`,[teacher, grade,date,null,periodId[0].period_id])
+        const addtoPayment=await conn.query(`insert into payment(teacher_id,suphourcourse,suphourtut,suphourlab,totalpayment,status,period_id,rank_id) values (?,?,?,?,?,?,?,?) `,[teacher,0,0,0,0,0,periodId[0].period_id,grade])
         res.status(200).json("nice")
         conn.release()
     }
@@ -160,51 +160,51 @@ exports.addRecord=async(req,res)=>{
     try{
         let conn=await db.getConnection()
         let weekNumber=getCustomWeekNumber(day)
-        let teachers=await conn.query(`select  teacherid, dayid from globaltimetableplanb  where isExtra=1 and presence=1`)
+        let teachers=await conn.query(`select  teacher_id, day_id from globaltimetableplanb  where isExtra=1 and presence=1`)
         console.log("absence record teachers are", teachers)
         if(Number(day)<7){
             month=Number(month)-1
             weekNumber=5
         }
         for(const t of teachers){
-            switch (Number(t.dayid)) {
+            switch (Number(t.day_id)) {
                 case 5:
-                    t.dayid = Number(day) - 1;
-                    if (t.dayid < 0) {
-                        t.dayid += 30;
+                    t.day_id = Number(day) - 1;
+                    if (t.day_id < 0) {
+                        t.day_id += 30;
                     }
                     break;
                 case 4:
-                    t.dayid = Number(day) - 2;
-                    if (t.dayid < 0) {
-                        t.dayid += 30;
+                    t.day_id = Number(day) - 2;
+                    if (t.day_id < 0) {
+                        t.day_id += 30;
                     }
                     break;
                 case 3:
-                    t.dayid = Number(day) - 3;
-                    if (t.dayid < 0) {
-                        t.dayid += 30;
+                    t.day_id = Number(day) - 3;
+                    if (t.day_id < 0) {
+                        t.day_id += 30;
                     }
                     break;
                 case 2:
-                    t.dayid = Number(day) - 4;
-                    if (t.dayid < 0) {
-                        t.dayid += 30;
+                    t.day_id = Number(day) - 4;
+                    if (t.day_id < 0) {
+                        t.day_id += 30;
                     }
                     break;
                 case 1:
-                    t.dayid = Number(day) - 5;
-                    if (t.dayid < 0) {
-                        t.dayid += 30;
+                    t.day_id = Number(day) - 5;
+                    if (t.day_id < 0) {
+                        t.day_id += 30;
                     }
                     break;
                 default:
                     break;
             }
-            const latestRankID= await conn.query(`select rankid from teacherrankhistory where teacherid=? and enddate is null`,[t.teacherid])
-            console.log("latest rank is",latestRankID[0].rankid)
-            await conn.query(`insert  into absencerecord (teacherid, weeknumber, monthnumber,daynumber,rankid) values (?,?,?,?,?)`,[t.teacherid,weekNumber,month,Number(t.dayid),latestRankID[0].rankid])
-          
+            const latestRankID= await conn.query(`select rank_id from TeacherRankHistory where teacher_id=? and end_date is null`,[t.teacher_id])
+            console.log("latest rank is",latestRankID[0].rank_id)
+            await conn.query(`insert  into AbsenceRecord (teacher_id, week_number, month_number,day_number,rank_id) values (?,?,?,?,?)`,[t.teacher_id,weekNumber,month,Number(t.day_id),latestRankID[0].rank_id])
+
         }
         res.status(200).json("nice")
         conn.release()

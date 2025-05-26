@@ -7,10 +7,10 @@ exports.markAbsence=async(req,res)=>{
     try{
         let conn =await db.getConnection()
 
-        let dayid=await conn.query(`select dayid from dayofweek where name=?`,[day])
-    console.log("day id is",dayid[0].dayid)
-        if(dayid[0]){
-        await conn.query(`update globaltimetableplanb set presence=0 where teacherid=? and dayid=? and isextra=1 and starttime in (?)`,[teacher,dayid[0].dayid,absentSessions])}
+        let day_id=await conn.query(`select day_id from DayOfWeek where name=?`,[day])
+    console.log("day id is",day_id[0].day_id)
+        if(day_id[0]){
+        await conn.query(`update globaltimetableplanb set presence=0 where teacher_id=? and day_id=? and isextra=1 and starttime in (?)`,[teacher,day_id[0].day_id,absentSessions])}
         res.status(200).json("nice")
         conn.release()
     }
@@ -21,12 +21,12 @@ exports.markAbsence=async(req,res)=>{
 
 
 exports.markEnddate=async(req,res)=>{
-    const{enddate}=req.query;
+    const{end_date}=req.query;
     try{
         let conn=await db.getConnection()
-        let historyid= await conn.query(`select historyid from teacherrankhistory where enddate is null`)
-        console.log("hitory is", historyid)
-        await conn.query(`update teacherrankhistory set enddate=? where historyid=?`,[enddate,historyid[0].historyid])
+        let history_id= await conn.query(`select history_id from TeacherRankHistory where end_date is null`)
+        console.log("hitory is", history_id)
+        await conn.query(`update TeacherRankHistory set end_date=? where history_id=?`,[end_date,history_id[0].history_id])
         res.status(200).json("nice")
         conn.release()
     }
@@ -41,8 +41,8 @@ exports.addSupHours=async(req,res)=>{
     const {teachers,date}=req.body
     try{
         let conn=await db.getConnection()
-        let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
-        let pid=periodid[0].periodid
+        let period_id=await conn.query(`select period_id from Periods where start_date<=? and ?<=end_date`,[date, date])
+        let pid=period_id[0].period_id
         console.log("teacher to add sup hours:",teachers)
         for(let teacher  of teachers){
             let user_id=teacher.user_id
@@ -52,16 +52,16 @@ exports.addSupHours=async(req,res)=>{
                     sum(case when sessiontypeid=2 then duration else 0 end) as suphourtut,
                     sum(case when sessiontypeid=3 then duration else 0 end) as suphourlab
                 from globaltimetableplanb
-                where teacherid=? and isExtra=1 and presence=1
+                where teacher_id=? and isExtra=1 and presence=1
             `,[user_id])
             console.log("USER ID", user_id)
             
-            let latestRankID= await conn.query(`select rankid from teacherrankhistory where teacherid=? and enddate is null`,[user_id])
+            let latestRankID= await conn.query(`select rank_id from TeacherRankHistory where teacher_id=? and end_date is null`,[user_id])
 
             console.log("LATEST RANK",latestRankID[0])
-            let paymentperhour=await conn.query(`select payment from ranks where rankid=?`,[latestRankID[0].rankid])
+            let paymentperhour=await conn.query(`select payment from Ranks where rank_id=?`,[latestRankID[0].rank_id])
             let d=durations[0]
-            await conn.query(`update payment set suphour=?, suphourcourse=?, suphourtut=?, suphourlab=?, totalpayment=? where teacherid=? and periodid=?`,
+            await conn.query(`update payment set suphour=?, suphourcourse=?, suphourtut=?, suphourlab=?, totalpayment=? where teacher_id=? and period_id=?`,
             [(Number(d.suphourcourse)+Number(d.suphourlab)+Number(d.suphourtut))||0,d.suphourcourse||0,d.suphourtut||0,d.suphourlab||0,Number(paymentperhour[0].payment)*(Number(d.suphourcourse)+Number(d.suphourlab)+Number(d.suphourtut)),user_id,pid])
         }
         res.status(200).json({message:"sup hours updated"})
@@ -77,8 +77,8 @@ exports.resetPresence=async(req,res)=>{
     const{date}=req.query
     try{
         let conn=await db.getConnection()
-        let periodid=await conn.query(`select periodid from periods where startdate<=? and ?<=enddate`,[date, date])
-        await conn.query(`update globaltimetableplanb set presence=1 where teacherid>=1`)
+        let period_id=await conn.query(`select period_id from Periods where start_date<=? and ?<=end_date`,[date, date])
+        await conn.query(`update globaltimetableplanb set presence=1 where teacher_id>=1`)
         res.status(200).json("nice")
         conn.release()
     }

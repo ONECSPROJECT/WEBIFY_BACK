@@ -9,24 +9,24 @@ exports.handleExport = async (req, res) => {
     const payment = await conn.query(`
       SELECT 
         p.paymentid,
-        p.teacherid,
+        p.teacher_id,
         p.suphourCourse,
         p.suphourTut,
         p.suphourLab,
         p.status,
-        p.periodid,
+        p.period_id,
         p.suphour,
-        p.rankid,
+        p.rank_id,
         u.full_name AS teacherName,
         r.name AS latestRank
       FROM payment p
-      JOIN user u ON u.user_id = p.teacherid
+      JOIN user u ON u.user_id = p.teacher_id
       LEFT JOIN (
-        SELECT tr1.teacherid, rk.name
-        FROM teacherrankhistory tr1
-        JOIN ranks rk ON rk.rankid = tr1.rankid
-        WHERE tr1.enddate IS NULL
-      ) r ON r.teacherid = p.teacherid
+        SELECT tr1.teacher_id, rk.name
+        FROM TeacherRankHistory tr1
+        JOIN Ranks rk ON rk.rank_id = tr1.rank_id
+        WHERE tr1.end_date IS NULL
+      ) r ON r.teacher_id = p.teacher_id
       WHERE p.paymentid = ?
     `, [paymentid]);
 
@@ -34,7 +34,7 @@ exports.handleExport = async (req, res) => {
       return res.status(404).send('Payment not found');
     }
 
-    const rank = await conn.query(`SELECT payment FROM ranks WHERE rankid = ?`, [payment[0].rankid]);
+    const rank = await conn.query(`SELECT payment FROM Ranks WHERE rank_id = ?`, [payment[0].rank_id]);
     const rate = rank[0]?.payment || 0;
 
     const courseHours = payment[0].suphourCourse / 60 || 0;
@@ -62,7 +62,7 @@ exports.handleExport = async (req, res) => {
     doc.fontSize(12)
       .text(`Teacher: ${payment[0].teacherName}`)
       .text(`Rank: ${payment[0].latestRank || 'N/A'}`)
-      .text(`Period Number this year: ${payment[0].periodid}`)
+      .text(`Period Number this year: ${payment[0].period_id}`)
       .moveDown()
       .text('-------------------- Payment Details --------------------')
       .moveDown();
@@ -135,27 +135,27 @@ exports.exportExcel = async (req, res) => {
     const payments = await conn.query(`
       SELECT 
         p.paymentid,
-        p.teacherid,
+        p.teacher_id,
         p.suphourCourse,
         p.suphourTut,
         p.suphourLab,
         p.status,
-        p.periodid,
+        p.period_id,
         p.suphour,
-        p.rankid,
+        p.rank_id,
         u.full_name AS teacherName,
         u.state AS State,
         r.name AS latestRank,
         rk.payment AS rate
       FROM payment p
-      JOIN user u ON u.user_id = p.teacherid
+      JOIN user u ON u.user_id = p.teacher_id
       LEFT JOIN (
-        SELECT tr1.teacherid, rk.name
-        FROM teacherrankhistory tr1
-        JOIN ranks rk ON rk.rankid = tr1.rankid
-        WHERE tr1.enddate IS NULL
-      ) r ON r.teacherid = p.teacherid
-      LEFT JOIN ranks rk ON rk.rankid = p.rankid
+        SELECT tr1.teacher_id, rk.name
+        FROM TeacherRankHistory tr1
+        JOIN Ranks rk ON rk.rank_id = tr1.rank_id
+        WHERE tr1.end_date IS NULL
+      ) r ON r.teacher_id = p.teacher_id
+      LEFT JOIN Ranks rk ON rk.rank_id = p.rank_id
     `);
     console.log("state", payments[0].State)
     const workbook = new ExcelJS.Workbook();
@@ -174,7 +174,7 @@ exports.exportExcel = async (req, res) => {
       { header: 'IRG (10%)', key: 'irgTax', width: 15 },
       { header: 'Net Payment', key: 'netPayment', width: 18 },
       { header: 'Status', key: 'status', width: 10 },
-      { header: 'Period', key: 'periodid', width: 10 },
+      { header: 'Period', key: 'period_id', width: 10 },
     ];
 
     for (const payment of payments) {
@@ -201,7 +201,7 @@ exports.exportExcel = async (req, res) => {
         irgTax: (irgTax ).toFixed(2),
         netPayment: (netPayment ).toFixed(2),
         status: payment.status === 0 ? 'Unpaid' : 'Paid',
-        periodid: payment.periodid
+        period_id: payment.period_id
       });
     }
 
