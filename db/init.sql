@@ -6,21 +6,55 @@ CREATE TABLE User (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
-    full_name CHAR(255),
+    full_name VARCHAR(255),
     masked BOOLEAN,
-    state CHAR(50),
-    payment_information CHAR(255),
-    faculty CHAR(255)
+    state VARCHAR(50),
+    payment_information VARCHAR(255),
+    faculty VARCHAR(255)
+);
+
+-- PROMOTIONS / PROGRAMS
+CREATE TABLE Promotion (
+    promo_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL
+);
+
+-- SEMESTERS
+CREATE TABLE Semesters (
+    semester_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    start_date DATE,
+    end_date DATE
+);
+
+-- PERIODS
+CREATE TABLE Periods (
+    period_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    start_date DATE,
+    end_date DATE,
+    semester_id INT,
+    FOREIGN KEY (semester_id) REFERENCES Semesters(semester_id)
+);
+
+-- RANKS
+CREATE TABLE Ranks (
+    rank_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    payment INT,
+    course_payment INT,
+    tut_payment INT,
+    lab_payment INT
 );
 
 -- ACCOUNT TABLE
 CREATE TABLE Account (
     account_id INT PRIMARY KEY AUTO_INCREMENT,
-    email CHAR(255) UNIQUE NOT NULL,
-    salt CHAR(255) NOT NULL,
-    password_hash CHAR(255) NOT NULL,
-    role CHAR(50) NOT NULL,
-    user_id INT UNIQUE,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    salt VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    user_id INT UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
@@ -28,37 +62,35 @@ CREATE TABLE Account (
 CREATE TABLE PasswordReset (
     reset_id INT PRIMARY KEY AUTO_INCREMENT,
     account_id INT NOT NULL,
-    token CHAR(255) UNIQUE NOT NULL,
+    token VARCHAR(255) UNIQUE NOT NULL,
     expires_at DATETIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (account_id) REFERENCES Account(account_id) ON DELETE CASCADE
 );
 
--- PROMOTIONS / PROGRAMS
-CREATE TABLE Promotion (
-    promo_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255) NOT NULL
-);
-
 -- SPECIALITIES
 CREATE TABLE Speciality (
     speciality_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     promo_id INT,
     FOREIGN KEY (promo_id) REFERENCES Promotion(promo_id)
 );
 
--- RANKS
-CREATE TABLE Ranks (
-    rank_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255),
-    payment INT,
-    course_payment INT,
-    tut_payment INT,
-    lab_payment INT
+-- DAY OF WEEK
+CREATE TABLE DayOfWeek (
+    day_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255)
 );
 
--- RANK HISTORY
+-- SESSION TYPES
+CREATE TABLE SessionType (
+    session_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    conversion_factor DECIMAL(10,2),
+    hierarchy_level INT
+);
+
+-- TEACHER RANK HISTORY
 CREATE TABLE TeacherRankHistory (
     history_id INT PRIMARY KEY AUTO_INCREMENT,
     teacher_id INT,
@@ -69,45 +101,6 @@ CREATE TABLE TeacherRankHistory (
     FOREIGN KEY (teacher_id) REFERENCES User(user_id),
     FOREIGN KEY (rank_id) REFERENCES Ranks(rank_id),
     FOREIGN KEY (period_id) REFERENCES Periods(period_id)
-);
-
--- DAY OF WEEK
-CREATE TABLE DayOfWeek (
-    day_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255)
-);
-
--- HOLIDAYS
-CREATE TABLE Holidays (
-    holiday_id INT PRIMARY KEY AUTO_INCREMENT,
-    start_date DATE,
-    end_date DATE
-);
-
--- SESSION TYPES
-CREATE TABLE SessionType (
-    session_type_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255),
-    conversion_factor DECIMAL(10,2),
-    hierarchy_level INT
-);
-
--- SEMESTERS
-CREATE TABLE Semesters (
-    semester_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255),
-    start_date DATE,
-    end_date DATE
-);
-
--- PERIODS
-CREATE TABLE Periods (
-    period_id INT PRIMARY KEY AUTO_INCREMENT,
-    name CHAR(255),
-    start_date DATE,
-    end_date DATE,
-    semester_id INT,
-    FOREIGN KEY (semester_id) REFERENCES Semesters(semester_id)
 );
 
 -- ABSENCE RECORDS
@@ -150,7 +143,7 @@ CREATE TABLE Payment (
     FOREIGN KEY (rank_id) REFERENCES Ranks(rank_id)
 );
 
--- GLOBAL TIME TABLE
+-- GLOBAL TIME TABLE (Schedule)
 CREATE TABLE Schedule (
     schedule_id INT PRIMARY KEY AUTO_INCREMENT,
     teacher_id INT,
@@ -171,13 +164,20 @@ CREATE TABLE Schedule (
     FOREIGN KEY (period_id) REFERENCES Periods(period_id)
 );
 
--- Filling the database...
+-- HOLIDAYS
+CREATE TABLE Holidays (
+    holiday_id INT PRIMARY KEY AUTO_INCREMENT,
+    start_date DATE,
+    end_date DATE
+);
+
+-- Initial data inserts
 
 -- RANKS
-INSERT INTO Ranks(name, pay_rate_course, pay_rate_tut, pay_rate_lab, payment) VALUES
-("MCA", 500, 400, 300, 500),
-("MCB", 700, 500, 400, 700),
-("PRF", 900, 800, 600, 900);
+INSERT INTO Ranks(name, payment, course_payment, tut_payment, lab_payment) VALUES
+("MCA", 500, 500, 400, 300),
+("MCB", 700, 700, 500, 400),
+("PRF", 900, 900, 800, 600);
 
 -- PROMOTIONS
 INSERT INTO Promotion(name) VALUES
@@ -194,12 +194,17 @@ INSERT INTO Speciality(name, promo_id) VALUES
 ('ISI', 4), ('SIW', 4), ('IASD', 4),
 ('ISI', 5), ('SIW', 5), ('IASD', 5);
 
--- DAY OF WEEK (if more needed)
+-- DAY OF WEEK
 INSERT INTO DayOfWeek(name) VALUES
 ('Monday'), ('Tuesday'), ('Wednesday'), ('Thursday'), ('Friday'), ('Saturday'), ('Sunday');
 
--- UPDATE PAYMENT
-UPDATE Payment SET suphour = 0 WHERE payment_id >= 1;
+-- Pre-populating periods and other stuff...
+INSERT INTO Semesters(name, start_date, end_date) VALUES
+('Fall 2024', '2024-09-01', '2024-12-31'),
+('Spring 2025', '2025-01-01', '2025-07-31');
 
-
+INSERT INTO Periods(name, start_date, end_date, semester_id) VALUES
+('Period 1', '2024-09-15', '2024-12-20', 1),
+('Period 2', '2025-01-07', '2025-01-20', 2),
+('Period 3', '2025-01-21', '2025-07-15', 2);
 

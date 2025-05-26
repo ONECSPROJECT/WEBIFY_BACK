@@ -4,8 +4,8 @@
 const assert = require('node:assert/strict');
 const Mailjet = require('node-mailjet');
 const mailjet = Mailjet.apiConnect(
-    process.env.MJ_APIKEY_PUBLIC || '',
-    process.env.MJ_APIKEY_PRIVATE || '',
+    process.env.MJ_APIKEY_PUBLIC || 'fakefake',
+    process.env.MJ_APIKEY_PRIVATE || 'fakefake',
 );
 function request(recipientMail, url) {
 

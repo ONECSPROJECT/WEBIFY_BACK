@@ -4,14 +4,13 @@ const assert = require('node:assert/strict');
 const { request } = require('../utils/emailService');
 const PasswordReset = require('../models/PasswordReset');
 const Account = require('../models/Account');
-const bcrypt = require('bcrypt');
 
 
 exports.requestPasswordReset = async (req, res) => {
     const { email } = req.body;
     assert.match(email, /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/, "Invalid email format");
     console.log("✅ Email is valid in format");
-    
+
     try {
         let account;
         try {
@@ -21,12 +20,12 @@ exports.requestPasswordReset = async (req, res) => {
             console.error("❌ Database error:", dbError);
             return res.status(500).json({ message: "Database lookup failed", error: dbError.message });
         }
-    
+
         if (!account) {
             console.log("❌ Account not found for email:", email);
             return res.status(404).json({ message: "Account not found" });
         }
-    
+
         // ✅ Now we are sure account exists before using its properties
         const account_id = account[0].account_id;
         const token = crypto.randomBytes(32).toString("hex");
@@ -39,7 +38,7 @@ exports.requestPasswordReset = async (req, res) => {
         console.log("checkpoint token: ",token)
 
         await request(email, resetLink);
-    
+
         res.status(200).json({
             status: "success",
             message: "Password reset link sent successfully.",
@@ -51,7 +50,7 @@ exports.requestPasswordReset = async (req, res) => {
             error: error.message,
         });
     }
-    
+
 
 }
 

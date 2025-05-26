@@ -20,7 +20,7 @@ exports.handleExport = async (req, res) => {
         u.full_name AS teacherName,
         r.name AS latestRank
       FROM payment p
-      JOIN user u ON u.user_id = p.teacher_id
+      JOIN User u ON u.user_id = p.teacher_id
       LEFT JOIN (
         SELECT tr1.teacher_id, rk.name
         FROM TeacherRankHistory tr1
@@ -148,7 +148,7 @@ exports.exportExcel = async (req, res) => {
         r.name AS latestRank,
         rk.payment AS rate
       FROM payment p
-      JOIN user u ON u.user_id = p.teacher_id
+      JOIN User u ON u.user_id = p.teacher_id
       LEFT JOIN (
         SELECT tr1.teacher_id, rk.name
         FROM TeacherRankHistory tr1

@@ -47,8 +47,10 @@ exports.register = async (req, res) => {
             [first_name, last_name, state, payment_information, faculty,full_name,masked]
         );
         const periodId=await conn.query(`select period_id from Periods where ?>=start_date and ?<=end_date `,[date,date])
-        console.log(periodId[0].period_id)
-        const teacherId=await conn.query(`select user_id from user where last_name=? and first_name=?`,[last_name,first_name])
+        // console.log(periodId);
+        // return
+        // console.log(periodId[0].period_id)
+        const teacherId=await conn.query(`select user_id from User where last_name=? and first_name=?`,[last_name,first_name])
         console.log(teacherId[0].user_id)
         const addToRankHistory=await conn.query(`insert into TeacherRankHistory(teacher_id,rank_id,start_date,end_date,period_id) values(?,?,?,?,?)`,[teacherId[0].user_id, grade,date,null,periodId[0].period_id])
         const addtoPayment=await conn.query(`insert into payment(teacher_id,suphour, suphourcourse,suphourtut,suphourlab,totalpayment,status,period_id,rank_id) values (?,?,?,?,?,?,?,?,?) `,[teacherId[0].user_id,0,0,0,0,0,0,periodId[0].period_id,grade])

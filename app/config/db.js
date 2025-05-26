@@ -2,10 +2,10 @@ const mariadb = require('mariadb');
 
 const pool = mariadb.createPool({
     connectionLimit:2000,
-    host: 'localhost',
+    host: 'webify_back-db-1',
     user: 'root',
-    password: 'BecauseEverybodyIsChanging!!+6367',
-    database: 'planB'
+    password: 'rootpassword',
+    database: 'suphours'
 });
 
 

@@ -17,7 +17,7 @@ exports.saveSched = async (req, res) => {
         console.log("Checkpoint");
 
         const dayRows = await conn.query("SELECT day_id, name FROM DayOfWeek");
-        const teacherRows = await conn.query("SELECT user_id, CONCAT(last_name, ' ', first_name) AS full_name FROM user");
+        const teacherRows = await conn.query("SELECT user_id, CONCAT(last_name, ' ', first_name) AS full_name FROM User");
         const sessionTypeRows = await conn.query("SELECT session_type_id, name FROM SessionType");
         const promotionRows = await conn.query("SELECT promoid, name FROM Promotion");
         const specialityRows = await conn.query("SELECT speciality_id, name FROM speciality");

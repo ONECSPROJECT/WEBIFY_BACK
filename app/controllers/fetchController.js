@@ -18,7 +18,7 @@ exports.getTeachers = async (req, res) => {
     try {
         conn = await db.getConnection();
         const teachers = await conn.query(
-            'SELECT user_id, first_name, last_name FROM user where masked=0',
+            'SELECT user_id, first_name, last_name FROM User where masked=0',
         );
         res.status(200).json(teachers);
     } catch (error) {
@@ -43,7 +43,7 @@ exports.getTableTeachers = async (req, res) => {
           u.state,
           u.masked,
           r.name AS current_rank
-        FROM user u
+        FROM User u
         INNER JOIN Account a ON u.user_id = a.user_id
         LEFT JOIN (
           SELECT t1.teacher_id, t1.rank_id
@@ -147,7 +147,7 @@ exports.getSpecialityName=async (req, res)=> {
 exports.fetchAdminName=async (req,res)=>{
     try{
         let conn=await db.getConnection();
-    const full_name= await conn.query(`select concat(last_name,' ',first_name) as full_name from user where user_id=1;`)
+    const full_name= await conn.query(`select concat(last_name,' ',first_name) as full_name from User where user_id=1;`)
     res.status(200).json(full_name[0])
     console.log("full name:",full_name[0])
     conn.release()
@@ -175,7 +175,7 @@ exports.getSched=async (req,res) =>{
       const period_id=await conn.query(`select period_id from Periods where start_date<=? and ?<=end_date`,[date,date])
       console.log("period is ",period_id[0])
       const scheds =await conn.query(`
-        select g.presence, g.starttime, g.duration, g.period, d.name as day_of_week, concat(u.last_name, ' ', u.first_name) as teacher, s.name as session_type, spec.name as speciality, p.name as Promotion from globaltimetableplanb g left join user u on g.teacher_id = u.user_id left join SessionType s on g.sessiontypeid = s.session_type_id left join speciality spec on g.speciality_id = spec.speciality_id left join Promotion p on g.promoid = p.promoid left join DayOfWeek d on g.day_id = d.day_id where g.isextra = 1 and g.period=?`,[period_id[0].period_id])
+        select g.presence, g.starttime, g.duration, g.period, d.name as day_of_week, concat(u.last_name, ' ', u.first_name) as teacher, s.name as session_type, spec.name as speciality, p.name as Promotion from globaltimetableplanb g left join User u on g.teacher_id = u.user_id left join SessionType s on g.sessiontypeid = s.session_type_id left join speciality spec on g.speciality_id = spec.speciality_id left join Promotion p on g.promoid = p.promoid left join DayOfWeek d on g.day_id = d.day_id where g.isextra = 1 and g.period=?`,[period_id[0].period_id])
 
       res.json({scheds,period_id:period_id[0].period_id})
       console.log(scheds)
@@ -229,7 +229,7 @@ exports.getSelectiveTeachers=async (req,res)=>{
             let teacherIds =selectiveTeachers.map(t=> t.teacher_id)
             if (teacherIds.length >0) {
                 let teacherDetails= await conn.query(
-                    `select user_id as teacher_id, first_name,last_name from user where user_id in (?)`, [teacherIds])
+                    `select user_id as teacher_id, first_name,last_name from User where user_id in (?)`, [teacherIds])
                 selectiveTeachers = teacherDetails
             }
         }
@@ -307,7 +307,7 @@ exports.getTeacherForPaymentPage = async (req, res) => {
         let conn =await db.getConnection()
         let period_id=await conn.query(`select period_id from Periods where start_date<=? and ?<=end_date`,[date, date])
 
-        let teachers = await conn.query(`select p.paymentid, p.teacher_id, u.full_name as teacher, p.suphour, p.totalPayment, p.status from payment p join user u on p.teacher_id = u.user_id where p.period_id=? and u.masked=0 `, [period_id[0].period_id])
+        let teachers = await conn.query(`select p.paymentid, p.teacher_id, u.full_name as teacher, p.suphour, p.totalPayment, p.status from payment p join User u on p.teacher_id = u.user_id where p.period_id=? and u.masked=0 `, [period_id[0].period_id])
         res.status(200).json({teachers,period:period_id[0].period_id})
         console.log(teachers)
         conn.release()
