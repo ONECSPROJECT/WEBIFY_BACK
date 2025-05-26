@@ -159,7 +159,7 @@ exports.fetchAdminName=async (req,res)=>{
 exports.fetchAdminEmail=async(req,res)=>{
     try{
         let conn=await db.getConnection()
-        const email=await conn.query(`select email from account where role='admin';`)
+        const email=await conn.query(`select email from Account where role='admin';`)
         res.status(200).json(email[0])
         conn.release()
     }
@@ -307,7 +307,7 @@ exports.getTeacherForPaymentPage = async (req, res) => {
         let conn =await db.getConnection()
         let period_id=await conn.query(`select period_id from Periods where start_date<=? and ?<=end_date`,[date, date])
 
-        let teachers = await conn.query(`select p.paymentid, p.teacher_id, u.full_name as teacher, p.suphour, p.totalPayment, p.status from payment p join User u on p.teacher_id = u.user_id where p.period_id=? and u.masked=0 `, [period_id[0].period_id])
+        let teachers = await conn.query(`select p.paymentid, p.teacher_id, u.full_name as teacher, p.suphour, p.totalPayment, p.status from Payment p join User u on p.teacher_id = u.user_id where p.period_id=? and u.masked=0 `, [period_id[0].period_id])
         res.status(200).json({teachers,period:period_id[0].period_id})
         console.log(teachers)
         conn.release()

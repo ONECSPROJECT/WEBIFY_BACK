@@ -6,7 +6,7 @@ exports.handleExport = async (req, res) => {
   const conn = await db.getConnection();
 
   try {
-    const payment = await conn.query(`
+    const Payment = await conn.query(`
       SELECT 
         p.paymentid,
         p.teacher_id,
@@ -19,7 +19,7 @@ exports.handleExport = async (req, res) => {
         p.rank_id,
         u.full_name AS teacherName,
         r.name AS latestRank
-      FROM payment p
+      FROM Payment p
       JOIN User u ON u.user_id = p.teacher_id
       LEFT JOIN (
         SELECT tr1.teacher_id, rk.name
@@ -30,16 +30,16 @@ exports.handleExport = async (req, res) => {
       WHERE p.paymentid = ?
     `, [paymentid]);
 
-    if (!payment || payment.length === 0) {
+    if (!Payment || Payment.length === 0) {
       return res.status(404).send('Payment not found');
     }
 
-    const rank = await conn.query(`SELECT payment FROM Ranks WHERE rank_id = ?`, [payment[0].rank_id]);
-    const rate = rank[0]?.payment || 0;
+    const rank = await conn.query(`SELECT Payment FROM Ranks WHERE rank_id = ?`, [Payment[0].rank_id]);
+    const rate = rank[0]?.Payment || 0;
 
-    const courseHours = payment[0].suphourCourse / 60 || 0;
-    const tutHours = payment[0].suphourTut / 60 || 0;
-    const labHours = payment[0].suphourLab / 60 || 0;
+    const courseHours = Payment[0].suphourCourse / 60 || 0;
+    const tutHours = Payment[0].suphourTut / 60 || 0;
+    const labHours = Payment[0].suphourLab / 60 || 0;
     const totalHours = courseHours + tutHours + labHours;
 
     const totalPayment = totalHours * rate;
@@ -47,7 +47,7 @@ exports.handleExport = async (req, res) => {
     const irg = (totalPayment - socialSec) * 0.10;
     const net = totalPayment - socialSec - irg;
 
-    await conn.query(`UPDATE payment SET totalPayment = ? WHERE paymentid = ?`, [totalPayment, paymentid]);
+    await conn.query(`UPDATE Payment SET totalPayment = ? WHERE paymentid = ?`, [totalPayment, paymentid]);
 
     // Generate PDF
     const doc = new PDFDocument();
@@ -57,12 +57,12 @@ exports.handleExport = async (req, res) => {
 
     doc.fontSize(20).text('Payment Report', { align: 'center' }).moveDown();
 
-    const status = payment[0].status === 0 ? 'Unpaid' : 'Paid';
+    const status = Payment[0].status === 0 ? 'Unpaid' : 'Paid';
 
     doc.fontSize(12)
-      .text(`Teacher: ${payment[0].teacherName}`)
-      .text(`Rank: ${payment[0].latestRank || 'N/A'}`)
-      .text(`Period Number this year: ${payment[0].period_id}`)
+      .text(`Teacher: ${Payment[0].teacherName}`)
+      .text(`Rank: ${Payment[0].latestRank || 'N/A'}`)
+      .text(`Period Number this year: ${Payment[0].period_id}`)
       .moveDown()
       .text('-------------------- Payment Details --------------------')
       .moveDown();
@@ -146,8 +146,8 @@ exports.exportExcel = async (req, res) => {
         u.full_name AS teacherName,
         u.state AS State,
         r.name AS latestRank,
-        rk.payment AS rate
-      FROM payment p
+        rk.Payment AS rate
+      FROM Payment p
       JOIN User u ON u.user_id = p.teacher_id
       LEFT JOIN (
         SELECT tr1.teacher_id, rk.name
@@ -177,31 +177,31 @@ exports.exportExcel = async (req, res) => {
       { header: 'Period', key: 'period_id', width: 10 },
     ];
 
-    for (const payment of payments) {
+    for (const Payment of payments) {
       const totalHours =
-        (payment.suphourCourse / 60 || 0) +
-        (payment.suphourTut / 60 || 0) +
-        (payment.suphourLab / 60 || 0);
+        (Payment.suphourCourse / 60 || 0) +
+        (Payment.suphourTut / 60 || 0) +
+        (Payment.suphourLab / 60 || 0);
 
-      const totalPayment = totalHours * (payment.rate || 0);
+      const totalPayment = totalHours * (Payment.rate || 0);
       const socialSec = totalPayment * 0.09;
       const irgTax = (totalPayment - socialSec) * 0.10;
       const netPayment = totalPayment - socialSec - irgTax;
 
       worksheet.addRow({
-        teacherName: payment.teacherName,
-        latestRank: payment.latestRank || 'N/A',
-        State: payment.State || 'N/A',
-        courseHours: payment.suphourCourse / 60,
-        tutoringHours: payment.suphourTut / 60,
-        labHours: payment.suphourLab / 60,
+        teacherName: Payment.teacherName,
+        latestRank: Payment.latestRank || 'N/A',
+        State: Payment.State || 'N/A',
+        courseHours: Payment.suphourCourse / 60,
+        tutoringHours: Payment.suphourTut / 60,
+        labHours: Payment.suphourLab / 60,
         totalHours,
         totalPayment: (totalPayment ).toFixed(2),
         socialSec: (socialSec ).toFixed(2),
         irgTax: (irgTax ).toFixed(2),
         netPayment: (netPayment ).toFixed(2),
-        status: payment.status === 0 ? 'Unpaid' : 'Paid',
-        period_id: payment.period_id
+        status: Payment.status === 0 ? 'Unpaid' : 'Paid',
+        period_id: Payment.period_id
       });
     }
 

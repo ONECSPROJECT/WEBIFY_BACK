@@ -48,9 +48,9 @@ exports.addSupHours=async(req,res)=>{
             let user_id=teacher.user_id
             let durations=await conn.query(`
                 select 
-                    sum(case when sessiontypeid=1 then duration else 0 end) as suphourcourse,
-                    sum(case when sessiontypeid=2 then duration else 0 end) as suphourtut,
-                    sum(case when sessiontypeid=3 then duration else 0 end) as suphourlab
+                    sum(case when sessiontypeid=1 then duration else 0 end) as suphour_course,
+                    sum(case when sessiontypeid=2 then duration else 0 end) as suphour_tut,
+                    sum(case when sessiontypeid=3 then duration else 0 end) as suphour_lab
                 from globaltimetableplanb
                 where teacher_id=? and isExtra=1 and presence=1
             `,[user_id])
@@ -59,10 +59,10 @@ exports.addSupHours=async(req,res)=>{
             let latestRankID= await conn.query(`select rank_id from TeacherRankHistory where teacher_id=? and end_date is null`,[user_id])
 
             console.log("LATEST RANK",latestRankID[0])
-            let paymentperhour=await conn.query(`select payment from Ranks where rank_id=?`,[latestRankID[0].rank_id])
+            let paymentperhour=await conn.query(`select Payment from Ranks where rank_id=?`,[latestRankID[0].rank_id])
             let d=durations[0]
-            await conn.query(`update payment set suphour=?, suphourcourse=?, suphourtut=?, suphourlab=?, totalpayment=? where teacher_id=? and period_id=?`,
-            [(Number(d.suphourcourse)+Number(d.suphourlab)+Number(d.suphourtut))||0,d.suphourcourse||0,d.suphourtut||0,d.suphourlab||0,Number(paymentperhour[0].payment)*(Number(d.suphourcourse)+Number(d.suphourlab)+Number(d.suphourtut)),user_id,pid])
+            await conn.query(`update Payment set suphour=?, suphour_course=?, suphour_tut=?, suphour_lab=?, total_payment=? where teacher_id=? and period_id=?`,
+            [(Number(d.suphour_course)+Number(d.suphour_lab)+Number(d.suphour_tut))||0,d.suphour_course||0,d.suphour_tut||0,d.suphour_lab||0,Number(paymentperhour[0].Payment)*(Number(d.suphour_course)+Number(d.suphour_lab)+Number(d.suphour_tut)),user_id,pid])
         }
         res.status(200).json({message:"sup hours updated"})
         conn.release()
@@ -106,7 +106,7 @@ exports.markAsPaid=async(req,res)=>{
     const {id}=req.query
     try{
         let conn=await db.getConnection()
-        await conn.query(`update payment set status =1 where paymentid=?`,[id])
+        await conn.query(`update Payment set status =1 where paymentid=?`,[id])
         res.status(200).json("nice")
     }
     catch(error){

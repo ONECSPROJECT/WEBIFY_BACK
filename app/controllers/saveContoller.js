@@ -137,7 +137,7 @@ exports.saveRank=async(req,res)=>{
         console.log(periodId[0])
         console.log("grade to be inserted",grade)
         const addToRankHistory=await conn.query(`insert into TeacherRankHistory(teacher_id,rank_id,start_date,end_date,period_id) values(?,?,?,?,?)`,[teacher, grade,date,null,periodId[0].period_id])
-        const addtoPayment=await conn.query(`insert into payment(teacher_id,suphourcourse,suphourtut,suphourlab,totalpayment,status,period_id,rank_id) values (?,?,?,?,?,?,?,?) `,[teacher,0,0,0,0,0,periodId[0].period_id,grade])
+        const addtoPayment=await conn.query(`insert into Payment(teacher_id,suphour_course,suphour_tut,suphour_lab,total_payment,status,period_id,rank_id) values (?,?,?,?,?,?,?,?) `,[teacher,0,0,0,0,0,periodId[0].period_id,grade])
         res.status(200).json("nice")
         conn.release()
     }

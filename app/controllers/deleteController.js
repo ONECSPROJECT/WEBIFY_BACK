@@ -7,7 +7,7 @@ exports.deleteTeacher=async (req,res)=>{
     let conn= await db.getConnection()
     console.log("connection made")
     try{
-        await conn.query(`delete from account where user_id =?;`,[user_id])
+        await conn.query(`delete from Account where user_id =?;`,[user_id])
         await conn.query(`delete  from User where user_id=?;`,[user_id])
         res.status(200).json("nice")
         conn.release()
